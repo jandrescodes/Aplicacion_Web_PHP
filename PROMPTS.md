@@ -222,7 +222,7 @@ Revisa el siguiente código antes del merge.
 
 [Restricciones]
 Evalúa específicamente:
-- Seguridad: SQL injection (bindParam/bindValue), XSS (htmlspecialchars en vistas), CSRF en POST, requireLogin() presente
+- Seguridad: SQL injection (bindParam/bindValue), XSS (htmlspecialchars en vistas), CSRF en POST, requireLogin() presente, requireAdmin() usa $_SESSION['is_admin'] (no comparación de nombre de usuario)
 - Capas: SQL fuera del Repository, lógica de negocio fuera del Service, lógica HTTP fuera del Controller
 - Request DTOs: $_POST solo en Controllers; XxxRequest::fromArray($_POST) + ->validate() antes del UseCase
 - OperationResult: UseCases devuelven OperationResult, no arrays crudos
@@ -257,7 +257,7 @@ y PHP sin framework.
 [Contexto]
 Proyecto: Sistema de Gestión de Empleados — PHP 8.x custom, sin framework.
 Estado actual: módulos implementados — empleados, puestos, usuarios, auth.
-BD: tbl-empleados, tbl-puestos, tbl-usuarios (ver database/schema.sql).
+BD: tbl-empleados, tbl-puestos, tbl-usuarios (ver database/schema.sql). tbl-usuarios incluye is_admin TINYINT(1) para control de acceso por rol — no usar el nombre de usuario para verificar permisos.
 Arquitectura: Controller → Request DTO → UseCase (OperationResult) → Service → Repository.
 Framework interno en core/ (Router, View, Flash, Security, ErrorPage, Container).
 Variables de entorno: vlucas/phpdotenv — leer con $_ENV['KEY']. Logging: Config\AppLogger::getInstance().
@@ -401,5 +401,5 @@ Devuelve en este orden:
 
 ---
 
-_Última actualización: 2026-05-08 — phpdotenv, Monolog y var-dumper integrados; Core\Env eliminado._
+_Última actualización: 2026-06-06 — is_admin en DB para autorización por rol; auto-migración de passwords a bcrypt; protección de assets por defecto en EmployeeService._
 _Mantener sincronizado con CLAUDE.md al inicio de cada sesión._

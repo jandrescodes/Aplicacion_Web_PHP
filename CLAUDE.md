@@ -128,9 +128,21 @@ Controller POST method:
 
 ## Database
 
-Tables: `tbl-puestos`, `tbl-empleados`, `tbl-usuarios` (note hyphen in table names — always quote them in SQL). `tbl-usuarios` has two extra nullable columns for remember-me: `remember_token` and `remember_token_expires`.
+Tables: `tbl-puestos`, `tbl-empleados`, `tbl-usuarios` (note hyphen in table names — always quote them in SQL). `tbl-usuarios` has extra columns: `remember_token`, `remember_token_expires` (remember-me), and `is_admin TINYINT(1) NOT NULL DEFAULT 0` (role-based authorization).
 
-File uploads land in `public/storage/uploads/`. Default assets (`user-default.jpg`, `cv_default.pdf`) live there too.
+**Admin authorization:** `Controller::requireAdmin()` checks `$_SESSION['is_admin']`, which is set from `$user->isAdmin` on login (`AuthUseCase`). Do not use username string comparison for access control.
+
+**No migration runner:** schema changes require two steps — update `database/schema.sql` AND apply directly:
+
+```bash
+mysql -u root -proot -h 127.0.0.1 app -e "ALTER TABLE ..."
+```
+
+File uploads land in `public/storage/uploads/`. Default assets (`user-default.jpg`, `cv_default.pdf`) live there too. Never pass these to `deleteFileIfExists()` — `EmployeeService` guards against this with an explicit `$defaultFiles` check.
+
+## Password hashing
+
+`AuthService::authenticate()` auto-migrates plain-text passwords to bcrypt on the first successful login — do not add migration logic elsewhere. `UserService` always calls `password_hash()` on create and update. The seeder (`database/seeders.sql`) stores bcrypt hashes; comments above the INSERT lines show the plain-text values for local dev reference.
 
 ## Logs
 

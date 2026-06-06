@@ -64,7 +64,8 @@ La aplicación usa un framework PHP propio con Composer PSR-4 y separación estr
 - Interfaces de repositorio para inversión de dependencias
 - Variables de entorno cargadas con `vlucas/phpdotenv` (validación de requeridas en bootstrap)
 - Logging estructurado con Monolog — rotación diaria en `storage/logs/app.log`, 14 días de retención
-- Autenticación con `password_hash` / `password_verify` y sesiones PHP
+- Autenticación con `password_hash` / `password_verify` y sesiones PHP; migración automática de contraseñas en texto plano a bcrypt en el primer login
+- Autorización basada en rol (`is_admin` en DB) — `requireAdmin()` lee `$_SESSION['is_admin']`, no el nombre de usuario
 - "Recuérdame" con token rotante almacenado hasheado en DB y cookie `HttpOnly`/`SameSite=Lax`
 - Protección CSRF en formularios y peticiones AJAX (meta tag + header)
 - Eliminación asíncrona con AJAX + SweetAlert2 sin recargar la página
@@ -97,12 +98,12 @@ El workflow de GitHub Actions corre la suite en PHP 8.2 y 8.3 en cada push y pul
 
 ## Dependencias
 
-| Paquete                      | Versión | Uso                                        |
-| ---------------------------- | ------- | ------------------------------------------ |
-| `dompdf/dompdf`              | ^3.1    | Generación de PDF (carta de recomendación) |
-| `vlucas/phpdotenv`           | ^5.6    | Carga y validación de variables de entorno |
-| `monolog/monolog`            | ^3.10   | Logging estructurado con rotación de logs  |
-| `symfony/var-dumper`         | ^7.4    | Debug (`dump()` / `dd()`) — solo dev       |
+| Paquete              | Versión | Uso                                        |
+| -------------------- | ------- | ------------------------------------------ |
+| `dompdf/dompdf`      | ^3.1    | Generación de PDF (carta de recomendación) |
+| `vlucas/phpdotenv`   | ^5.6    | Carga y validación de variables de entorno |
+| `monolog/monolog`    | ^3.10   | Logging estructurado con rotación de logs  |
+| `symfony/var-dumper` | ^7.4    | Debug (`dump()` / `dd()`) — solo dev       |
 
 Todas las dependencias se instalan con `composer install`.
 
@@ -141,8 +142,8 @@ Los logs de la aplicación se escriben en `storage/logs/app.log` con rotación d
 ## Base de datos
 
 Tablas: `tbl-empleados`, `tbl-puestos`, `tbl-usuarios` (los guiones requieren comillas en SQL).  
-`tbl-usuarios` incluye columnas `remember_token` y `remember_token_expires` para la función "Recuérdame".  
-Archivos subidos en `public/storage/uploads/`.
+`tbl-usuarios` incluye `remember_token` y `remember_token_expires` para "Recuérdame", e `is_admin TINYINT(1)` para control de acceso por rol.  
+Archivos subidos en `public/storage/uploads/`. Los assets por defecto (`user-default.jpg`, `cv_default.pdf`) están protegidos contra borrado accidental.
 
 ---
 
