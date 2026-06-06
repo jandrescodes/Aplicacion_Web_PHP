@@ -6,6 +6,7 @@ use App\Middleware\AuthMiddleware;
 use Core\Flash;
 use Core\Security;
 use Core\View;
+
 abstract class Controller
 {
     protected string $projectRoot;
@@ -78,7 +79,7 @@ abstract class Controller
 
     protected function requireAdmin(): void
     {
-        if ($this->currentUser() !== 'Administrador') {
+        if (!$this->authMiddleware->isAdmin()) {
             Flash::set('No tiene permisos para acceder a esta sección.', 'error');
             $this->redirect('');
         }

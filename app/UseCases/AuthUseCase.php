@@ -29,8 +29,9 @@ class AuthUseCase
         $_SESSION['usuario']  = $user->usuario;
         $_SESSION['logueado'] = true;
         $_SESSION['user_id']  = $user->id;
+        $_SESSION['is_admin'] = $user->isAdmin;
 
-        if ($request->remember && $_ENV['REMEMBER_ME_ENABLED'] ?? 'true' === 'true') {
+        if ($request->remember && (($_ENV['REMEMBER_ME_ENABLED'] ?? 'true') === 'true')) {
             $plainToken = $this->authService->issueRememberToken($user->id);
             Security::setRememberCookie($user->id . ':' . $plainToken);
         }
@@ -40,7 +41,7 @@ class AuthUseCase
 
     public function handleRememberLogin(): bool
     {
-        if ($_ENV['REMEMBER_ME_ENABLED'] ?? 'true' !== 'true') {
+        if (($_ENV['REMEMBER_ME_ENABLED'] ?? 'true') !== 'true') {
             return false;
         }
 
@@ -61,6 +62,7 @@ class AuthUseCase
         $_SESSION['usuario']  = $user->usuario;
         $_SESSION['logueado'] = true;
         $_SESSION['user_id']  = $user->id;
+        $_SESSION['is_admin'] = $user->isAdmin;
 
         $plainToken = $this->authService->issueRememberToken($user->id);
         Security::setRememberCookie($user->id . ':' . $plainToken);

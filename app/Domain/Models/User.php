@@ -9,6 +9,7 @@ class User
         public readonly string $usuario,
         public readonly ?string $password,
         public readonly ?string $correo,
+        public readonly bool $isAdmin = false,
         public readonly ?string $rememberToken = null,
         public readonly ?string $rememberTokenExpires = null,
     ) {}
@@ -20,6 +21,7 @@ class User
             usuario: (string)($row['Nombreusuario'] ?? ''),
             password: (isset($row['Password']) && $row['Password'] !== '') ? (string)$row['Password'] : null,
             correo: (isset($row['Correo']) && $row['Correo'] !== '') ? (string)$row['Correo'] : null,
+            isAdmin: (bool)($row['is_admin'] ?? false),
             rememberToken: $row['remember_token'] ?? null,
             rememberTokenExpires: $row['remember_token_expires'] ?? null,
         );

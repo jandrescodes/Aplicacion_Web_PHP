@@ -158,10 +158,11 @@ class EmployeeService
             return ['success' => false, 'message' => 'No se pudo actualizar el empleado.'];
         }
 
-        if ($newPhoto !== '') {
+        $defaultFiles = ['user-default.jpg', 'cv_default.pdf'];
+        if ($newPhoto !== '' && !in_array(basename($currentPhoto), $defaultFiles, true)) {
             $this->fileStorage->deleteFileIfExists($baseDirectory, $currentPhoto);
         }
-        if ($newCv !== '') {
+        if ($newCv !== '' && !in_array(basename($currentCv), $defaultFiles, true)) {
             $this->fileStorage->deleteFileIfExists($baseDirectory, $currentCv);
         }
 
@@ -177,8 +178,15 @@ class EmployeeService
 
         $files = $this->employeeRepository->findFilesById($employeeId);
         if ($files !== null) {
-            $this->fileStorage->deleteFileIfExists($baseDirectory, isset($files['Foto']) ? $files['Foto'] : '');
-            $this->fileStorage->deleteFileIfExists($baseDirectory, isset($files['CV']) ? $files['CV'] : '');
+            $defaultFiles = ['user-default.jpg', 'cv_default.pdf'];
+            $foto = isset($files['Foto']) ? $files['Foto'] : '';
+            $cv   = isset($files['CV'])   ? $files['CV']   : '';
+            if ($foto !== '' && !in_array(basename($foto), $defaultFiles, true)) {
+                $this->fileStorage->deleteFileIfExists($baseDirectory, $foto);
+            }
+            if ($cv !== '' && !in_array(basename($cv), $defaultFiles, true)) {
+                $this->fileStorage->deleteFileIfExists($baseDirectory, $cv);
+            }
         }
 
         return $this->employeeRepository->deleteById($employeeId);

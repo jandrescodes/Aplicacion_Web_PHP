@@ -14,7 +14,7 @@ class AuthMiddleware
         $this->authUseCase = $authUseCase;
     }
 
-    public function requireLogin($loginUrl)
+    public function requireLogin(string $loginUrl): void
     {
         Security::startSession();
 
@@ -35,5 +35,12 @@ class AuthMiddleware
         Security::startSession();
 
         return isset($_SESSION['usuario']) ? $_SESSION['usuario'] : '';
+    }
+
+    public function isAdmin(): bool
+    {
+        Security::startSession();
+
+        return !empty($_SESSION['is_admin']);
     }
 }

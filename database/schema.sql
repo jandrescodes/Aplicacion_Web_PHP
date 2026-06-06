@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS `tbl-usuarios` (
   `Correo` varchar(255) NOT NULL,
   `remember_token` CHAR(64) DEFAULT NULL,
   `remember_token_expires` DATETIME DEFAULT NULL,
+  `is_admin` TINYINT(1) NOT NULL DEFAULT 0,
   PRIMARY KEY (`ID`),
   UNIQUE KEY `Correo` (`Correo`),
   INDEX `idx_remember_token` (`remember_token`)

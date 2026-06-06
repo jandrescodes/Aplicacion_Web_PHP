@@ -8,7 +8,7 @@ use PDO;
 
 class UserRepository implements UserRepositoryInterface
 {
-    private $connection;
+    private PDO $connection;
 
     public function __construct(PDO $connection)
     {
@@ -18,7 +18,7 @@ class UserRepository implements UserRepositoryInterface
     public function findByUsername(string $username): ?User
     {
         $statement = $this->connection->prepare(
-            "SELECT ID, Nombreusuario, Password, Correo
+            "SELECT ID, Nombreusuario, Password, Correo, is_admin
              FROM `tbl-usuarios`
              WHERE Nombreusuario = :Nombreusuario
               LIMIT 1"
@@ -35,7 +35,7 @@ class UserRepository implements UserRepositoryInterface
     public function listAll(): array
     {
         $statement = $this->connection->prepare(
-            "SELECT ID, Nombreusuario, Correo
+            "SELECT ID, Nombreusuario, Correo, is_admin
              FROM `tbl-usuarios`
              ORDER BY ID DESC"
         );
@@ -49,7 +49,7 @@ class UserRepository implements UserRepositoryInterface
     public function findById(int $id): ?User
     {
         $statement = $this->connection->prepare(
-            "SELECT ID, Nombreusuario, Password, Correo
+            "SELECT ID, Nombreusuario, Password, Correo, is_admin
              FROM `tbl-usuarios`
              WHERE ID = :ID
              LIMIT 1"
