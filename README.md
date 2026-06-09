@@ -66,6 +66,7 @@ La aplicación usa un framework PHP propio con Composer PSR-4 y separación estr
 - Logging estructurado con Monolog — rotación diaria en `storage/logs/app.log`, 14 días de retención
 - Autenticación con `password_hash` / `password_verify` y sesiones PHP; migración automática de contraseñas en texto plano a bcrypt en el primer login
 - Autorización basada en rol (`is_admin` en DB) — `requireAdmin()` lee `$_SESSION['is_admin']`, no el nombre de usuario
+- Perfil de usuario: cambio de nombre de usuario, correo y contraseña con verificación de contraseña actual; actualiza `$_SESSION['usuario']` si cambia el nombre
 - "Recuérdame" con token rotante almacenado hasheado en DB y cookie `HttpOnly`/`SameSite=Lax`
 - Protección CSRF en formularios y peticiones AJAX (meta tag + header)
 - Eliminación asíncrona con AJAX + SweetAlert2 sin recargar la página
@@ -143,6 +144,7 @@ Los logs de la aplicación se escriben en `storage/logs/app.log` con rotación d
 
 Tablas: `tbl-empleados`, `tbl-puestos`, `tbl-usuarios` (los guiones requieren comillas en SQL).  
 `tbl-usuarios` incluye `remember_token` y `remember_token_expires` para "Recuérdame", e `is_admin TINYINT(1)` para control de acceso por rol.  
+La columna `Correo` tiene restricción `UNIQUE` — la unicidad se valida explícitamente en `UserService` antes del INSERT/UPDATE para dar mensajes de error claros.  
 Archivos subidos en `public/storage/uploads/`. Los assets por defecto (`user-default.jpg`, `cv_default.pdf`) están protegidos contra borrado accidental.
 
 ---

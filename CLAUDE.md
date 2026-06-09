@@ -130,7 +130,7 @@ Controller POST method:
 
 Tables: `tbl-puestos`, `tbl-empleados`, `tbl-usuarios` (note hyphen in table names — always quote them in SQL). `tbl-usuarios` has extra columns: `remember_token`, `remember_token_expires` (remember-me), and `is_admin TINYINT(1) NOT NULL DEFAULT 0` (role-based authorization).
 
-**Admin authorization:** `Controller::requireAdmin()` checks `$_SESSION['is_admin']`, which is set from `$user->isAdmin` on login (`AuthUseCase`). Do not use username string comparison for access control.
+**Admin authorization:** `Controller::requireAdmin()` checks `$_SESSION['is_admin']`, which is set from `$user->isAdmin` on login (`AuthUseCase`). Do not use username string comparison for access control. `Controller::renderWithLayout()` always passes `isAdmin` (bool) to every view via the layout data — the navbar uses `!empty($isAdmin)` to show the Users menu, never the username string.
 
 **No migration runner:** schema changes require two steps — update `database/schema.sql` AND apply directly:
 
@@ -139,6 +139,15 @@ mysql -u root -proot -h 127.0.0.1 app -e "ALTER TABLE ..."
 ```
 
 File uploads land in `public/storage/uploads/`. Default assets (`user-default.jpg`, `cv_default.pdf`) live there too. Never pass these to `deleteFileIfExists()` — `EmployeeService` guards against this with an explicit `$defaultFiles` check.
+
+## User profile
+
+`GET /perfil` and `POST /perfil-datos` / `POST /perfil-contrasena` are handled by `ProfileController` → `ProfileUseCase` → `UserService`.
+
+- **Data update** (`perfil-datos`): changes username and email. `UserService::updateProfile()` checks uniqueness via `usernameExistsExcluding()` and `emailExists()` (both exclude the current user's ID). If the username changes, `ProfileUseCase::updateData()` refreshes `$_SESSION['usuario']` — the only place outside Auth allowed to write session state.
+- **Password change** (`perfil-contrasena`): separate form, separate route. `ProfileUseCase::changePassword()` calls `UserService::verifyCurrentPassword()` first, then `UserService::changePassword()` which calls `UserRepository::updatePasswordHash()`. The data-update path never touches the password column.
+- `ProfileController` reads `$_SESSION['user_id']` (never from `$_POST`) so a user can only edit their own profile.
+- **Two forms, two routes** — never mix them. The earlier single-form + hidden-fields approach caused duplicate POST keys where PHP used the last value, silently discarding typed input.
 
 ## Password hashing
 

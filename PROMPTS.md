@@ -222,7 +222,7 @@ Revisa el siguiente código antes del merge.
 
 [Restricciones]
 Evalúa específicamente:
-- Seguridad: SQL injection (bindParam/bindValue), XSS (htmlspecialchars en vistas), CSRF en POST, requireLogin() presente, requireAdmin() usa $_SESSION['is_admin'] (no comparación de nombre de usuario)
+- Seguridad: SQL injection (bindParam/bindValue), XSS (htmlspecialchars en vistas), CSRF en POST, requireLogin() presente, requireAdmin() usa $_SESSION['is_admin'] (no comparación de nombre de usuario); navbar usa !empty($isAdmin) no $nombreUsuario == "Administrador"
 - Capas: SQL fuera del Repository, lógica de negocio fuera del Service, lógica HTTP fuera del Controller
 - Request DTOs: $_POST solo en Controllers; XxxRequest::fromArray($_POST) + ->validate() antes del UseCase
 - OperationResult: UseCases devuelven OperationResult, no arrays crudos
@@ -401,5 +401,5 @@ Devuelve en este orden:
 
 ---
 
-_Última actualización: 2026-06-06 — is_admin en DB para autorización por rol; auto-migración de passwords a bcrypt; protección de assets por defecto en EmployeeService._
+_Última actualización: 2026-06-09 — módulo de perfil de usuario (ProfileController/UseCase/Service); validación de email único en UserService; navbar usa `!empty($isAdmin)` en lugar de comparación de nombre de usuario; `isAdmin` pasado desde `Controller::renderWithLayout()` a todas las vistas._
 _Mantener sincronizado con CLAUDE.md al inicio de cada sesión._
