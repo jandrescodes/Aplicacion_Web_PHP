@@ -47,7 +47,7 @@
         </div>
 
         <!-- Acceso a Usuarios (Solo Admin) -->
-        <?php if (!empty($esAdministrador)) : ?>
+        <?php if (!empty($isAdmin)) : ?>
             <div class="col-md-4">
                 <div class="card h-100 shadow-sm border-0 transition-hover">
                     <div class="card-body text-center p-4">

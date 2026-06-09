@@ -28,4 +28,6 @@ interface UserRepositoryInterface
     public function clearRememberToken(int $id): bool;
 
     public function emailExists(string $email, ?int $excludeId = null): bool;
+
+    public function usernameExistsExcluding(string $username, int $excludeId): bool;
 }

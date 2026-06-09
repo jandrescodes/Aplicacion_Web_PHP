@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EmployeesController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PositionsController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UsersController;
 use Core\Container;
 use Core\Router;
@@ -14,6 +15,7 @@ return static function (Router $router, Container $container): void {
     $employees = $container->resolve(EmployeesController::class);
     $positions = $container->resolve(PositionsController::class);
     $users     = $container->resolve(UsersController::class);
+    $profile   = $container->resolve(ProfileController::class);
 
     $router->get('/',      [$home, 'index']);
     $router->get('/index', [$home, 'alias']);
@@ -37,6 +39,10 @@ return static function (Router $router, Container $container): void {
     $router->get('/puestos-editar',  [$positions, 'editForm']);
     $router->post('/puestos-editar', [$positions, 'edit']);
     $router->post('/puestos-eliminar', [$positions, 'delete']);
+
+    $router->get('/perfil',               [$profile, 'show']);
+    $router->post('/perfil-datos',        [$profile, 'updateData']);
+    $router->post('/perfil-contrasena',   [$profile, 'changePassword']);
 
     $router->get('/usuarios',         [$users, 'index']);
     $router->get('/usuarios-crear',   [$users, 'createForm']);

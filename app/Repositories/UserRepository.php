@@ -165,4 +165,16 @@ class UserRepository implements UserRepositoryInterface
         $statement->execute();
         return (int)$statement->fetchColumn() > 0;
     }
+
+    public function usernameExistsExcluding(string $username, int $excludeId): bool
+    {
+        $statement = $this->connection->prepare(
+            "SELECT COUNT(*) FROM `tbl-usuarios`
+             WHERE Nombreusuario = :Nombreusuario AND ID != :ExcludeId"
+        );
+        $statement->bindParam(':Nombreusuario', $username);
+        $statement->bindParam(':ExcludeId', $excludeId, PDO::PARAM_INT);
+        $statement->execute();
+        return (int)$statement->fetchColumn() > 0;
+    }
 }

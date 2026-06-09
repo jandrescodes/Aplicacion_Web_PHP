@@ -26,6 +26,7 @@ abstract class Controller
     {
         $data['public_base']    = $this->publicBaseUrl;
         $data['nombreUsuario']  = $this->currentUser();
+        $data['isAdmin']        = $this->authMiddleware->isAdmin();
         $data['flash']          = Flash::consume();
         View::renderWithLayout($viewFile, $data);
     }

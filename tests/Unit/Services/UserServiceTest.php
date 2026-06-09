@@ -293,4 +293,249 @@ class UserServiceTest extends TestCase
 
         $this->assertTrue($this->service->deleteUser(4));
     }
+
+    // --- verifyCurrentPassword ---
+
+    public function test_verifyCurrentPassword_returns_false_when_id_is_zero(): void
+    {
+        $this->repo->expects($this->never())->method('findById');
+
+        $this->assertFalse($this->service->verifyCurrentPassword(0, 'secret123'));
+    }
+
+    public function test_verifyCurrentPassword_returns_false_when_plain_password_empty(): void
+    {
+        $this->repo->expects($this->never())->method('findById');
+
+        $this->assertFalse($this->service->verifyCurrentPassword(1, ''));
+    }
+
+    public function test_verifyCurrentPassword_returns_false_when_user_not_found(): void
+    {
+        $this->repo->method('findById')->willReturn(null);
+
+        $this->assertFalse($this->service->verifyCurrentPassword(99, 'secret123'));
+    }
+
+    public function test_verifyCurrentPassword_returns_false_when_stored_password_is_null(): void
+    {
+        $user = User::fromRow(['ID' => '1', 'Nombreusuario' => 'jdoe', 'Password' => '', 'Correo' => 'j@j.com']);
+        $this->repo->method('findById')->willReturn($user);
+
+        $this->assertFalse($this->service->verifyCurrentPassword(1, 'secret123'));
+    }
+
+    public function test_verifyCurrentPassword_returns_false_when_password_mismatch(): void
+    {
+        $user = $this->makeUser(['Password' => password_hash('correctpass', PASSWORD_DEFAULT)]);
+        $this->repo->method('findById')->willReturn($user);
+
+        $this->assertFalse($this->service->verifyCurrentPassword(2, 'wrongpass'));
+    }
+
+    public function test_verifyCurrentPassword_returns_true_when_password_matches(): void
+    {
+        $user = $this->makeUser(['Password' => password_hash('secret123', PASSWORD_DEFAULT)]);
+        $this->repo->method('findById')->willReturn($user);
+
+        $this->assertTrue($this->service->verifyCurrentPassword(2, 'secret123'));
+    }
+
+    // --- updateProfile ---
+
+    private function validProfileData(): array
+    {
+        return ['usuario' => 'jdoe', 'correo' => 'jdoe@example.com'];
+    }
+
+    public function test_updateProfile_returns_error_when_id_is_zero(): void
+    {
+        $this->repo->expects($this->never())->method('findById');
+
+        $result = $this->service->updateProfile(0, $this->validProfileData());
+
+        $this->assertFalse($result['success']);
+    }
+
+    public function test_updateProfile_returns_error_when_user_not_found(): void
+    {
+        $this->repo->method('findById')->willReturn(null);
+
+        $result = $this->service->updateProfile(99, $this->validProfileData());
+
+        $this->assertFalse($result['success']);
+    }
+
+    public function test_updateProfile_returns_error_when_usuario_empty(): void
+    {
+        $this->repo->method('findById')->willReturn($this->makeUser());
+
+        $result = $this->service->updateProfile(2, array_merge($this->validProfileData(), ['usuario' => '']));
+
+        $this->assertFalse($result['success']);
+    }
+
+    public function test_updateProfile_returns_error_when_correo_empty(): void
+    {
+        $this->repo->method('findById')->willReturn($this->makeUser());
+
+        $result = $this->service->updateProfile(2, array_merge($this->validProfileData(), ['correo' => '']));
+
+        $this->assertFalse($result['success']);
+    }
+
+    public function test_updateProfile_returns_error_when_correo_invalid_format(): void
+    {
+        $this->repo->method('findById')->willReturn($this->makeUser());
+
+        $result = $this->service->updateProfile(2, array_merge($this->validProfileData(), ['correo' => 'no-es-email']));
+
+        $this->assertFalse($result['success']);
+    }
+
+    public function test_updateProfile_returns_error_when_username_taken_by_other_user(): void
+    {
+        $this->repo->method('findById')->willReturn($this->makeUser());
+        $this->repo->method('usernameExistsExcluding')->with('jdoe', 2)->willReturn(true);
+        $this->repo->expects($this->never())->method('update');
+
+        $result = $this->service->updateProfile(2, $this->validProfileData());
+
+        $this->assertFalse($result['success']);
+        $this->assertSame('El nombre de usuario ya está en uso.', $result['message']);
+    }
+
+    public function test_updateProfile_returns_error_when_email_taken_by_other_user(): void
+    {
+        $this->repo->method('findById')->willReturn($this->makeUser());
+        $this->repo->method('usernameExistsExcluding')->willReturn(false);
+        $this->repo->method('emailExists')->with('jdoe@example.com', 2)->willReturn(true);
+        $this->repo->expects($this->never())->method('update');
+
+        $result = $this->service->updateProfile(2, $this->validProfileData());
+
+        $this->assertFalse($result['success']);
+        $this->assertSame('El correo electrónico ya está registrado.', $result['message']);
+    }
+
+    public function test_updateProfile_preserves_existing_password(): void
+    {
+        $existingHash = password_hash('original', PASSWORD_DEFAULT);
+        $user = $this->makeUser(['Password' => $existingHash]);
+        $this->repo->method('findById')->willReturn($user);
+        $this->repo->method('usernameExistsExcluding')->willReturn(false);
+        $this->repo->method('emailExists')->willReturn(false);
+
+        $this->repo->expects($this->once())
+            ->method('update')
+            ->with($this->anything(), $this->callback(fn($d) => $d['Password'] === $existingHash))
+            ->willReturn(true);
+
+        $this->service->updateProfile(2, $this->validProfileData());
+    }
+
+    public function test_updateProfile_never_writes_is_admin_field(): void
+    {
+        $this->repo->method('findById')->willReturn($this->makeUser());
+        $this->repo->method('usernameExistsExcluding')->willReturn(false);
+        $this->repo->method('emailExists')->willReturn(false);
+
+        $this->repo->expects($this->once())
+            ->method('update')
+            ->with($this->anything(), $this->callback(fn($d) => !array_key_exists('is_admin', $d)))
+            ->willReturn(true);
+
+        $this->service->updateProfile(2, $this->validProfileData());
+    }
+
+    public function test_updateProfile_sets_usuarioCambiado_true_when_username_changes(): void
+    {
+        $this->repo->method('findById')->willReturn($this->makeUser(['Nombreusuario' => 'viejo']));
+        $this->repo->method('usernameExistsExcluding')->willReturn(false);
+        $this->repo->method('emailExists')->willReturn(false);
+        $this->repo->method('update')->willReturn(true);
+
+        $result = $this->service->updateProfile(2, array_merge($this->validProfileData(), ['usuario' => 'nuevo']));
+
+        $this->assertTrue($result['usuarioCambiado']);
+        $this->assertSame('nuevo', $result['nuevoUsuario']);
+    }
+
+    public function test_updateProfile_sets_usuarioCambiado_false_when_username_unchanged(): void
+    {
+        $this->repo->method('findById')->willReturn($this->makeUser());
+        $this->repo->method('usernameExistsExcluding')->willReturn(false);
+        $this->repo->method('emailExists')->willReturn(false);
+        $this->repo->method('update')->willReturn(true);
+
+        $result = $this->service->updateProfile(2, $this->validProfileData());
+
+        $this->assertFalse($result['usuarioCambiado']);
+    }
+
+    public function test_updateProfile_returns_error_when_repository_throws_pdo_exception(): void
+    {
+        $this->repo->method('findById')->willReturn($this->makeUser());
+        $this->repo->method('usernameExistsExcluding')->willReturn(false);
+        $this->repo->method('emailExists')->willReturn(false);
+        $this->repo->method('update')->willThrowException(new PDOException('DB error'));
+
+        $result = $this->service->updateProfile(2, $this->validProfileData());
+
+        $this->assertFalse($result['success']);
+    }
+
+    public function test_updateProfile_returns_success_on_valid_data(): void
+    {
+        $this->repo->method('findById')->willReturn($this->makeUser());
+        $this->repo->method('usernameExistsExcluding')->willReturn(false);
+        $this->repo->method('emailExists')->willReturn(false);
+        $this->repo->method('update')->willReturn(true);
+
+        $result = $this->service->updateProfile(2, $this->validProfileData());
+
+        $this->assertTrue($result['success']);
+        $this->assertSame('Perfil actualizado exitosamente.', $result['message']);
+    }
+
+    // --- changePassword ---
+
+    public function test_changePassword_returns_error_when_id_is_zero(): void
+    {
+        $this->repo->expects($this->never())->method('updatePasswordHash');
+
+        $result = $this->service->changePassword(0, 'nueva12345');
+
+        $this->assertFalse($result['success']);
+    }
+
+    public function test_changePassword_calls_updatePasswordHash_with_bcrypt(): void
+    {
+        $this->repo->expects($this->once())
+            ->method('updatePasswordHash')
+            ->with(2, $this->callback(fn($h) => password_verify('nueva12345', $h)))
+            ->willReturn(true);
+
+        $result = $this->service->changePassword(2, 'nueva12345');
+
+        $this->assertTrue($result['success']);
+    }
+
+    public function test_changePassword_returns_error_when_repository_returns_false(): void
+    {
+        $this->repo->method('updatePasswordHash')->willReturn(false);
+
+        $result = $this->service->changePassword(2, 'nueva12345');
+
+        $this->assertFalse($result['success']);
+    }
+
+    public function test_changePassword_returns_error_when_repository_throws_pdo_exception(): void
+    {
+        $this->repo->method('updatePasswordHash')->willThrowException(new PDOException('DB error'));
+
+        $result = $this->service->changePassword(2, 'nueva12345');
+
+        $this->assertFalse($result['success']);
+    }
 }

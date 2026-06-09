@@ -114,6 +114,88 @@ class UserService
         return ['success' => true, 'message' => 'Usuario actualizado exitosamente.'];
     }
 
+    public function verifyCurrentPassword(int $userId, string $plainPassword): bool
+    {
+        if ($userId <= 0 || $plainPassword === '') {
+            return false;
+        }
+        $user = $this->userRepository->findById($userId);
+        if ($user === null || $user->password === null || $user->password === '') {
+            return false;
+        }
+        return password_verify($plainPassword, $user->password);
+    }
+
+    public function updateProfile(int $userId, array $data): array
+    {
+        if ($userId <= 0) {
+            return ['success' => false, 'message' => 'El ID del usuario no es válido.', 'usuarioCambiado' => false, 'nuevoUsuario' => ''];
+        }
+
+        $existingUser = $this->userRepository->findById($userId);
+        if ($existingUser === null) {
+            return ['success' => false, 'message' => 'No se encontró el usuario.', 'usuarioCambiado' => false, 'nuevoUsuario' => ''];
+        }
+
+        $usuario = trim((string)($data['usuario'] ?? ''));
+        $correo  = trim((string)($data['correo'] ?? ''));
+
+        if ($usuario === '') {
+            return ['success' => false, 'message' => 'El usuario es obligatorio.', 'usuarioCambiado' => false, 'nuevoUsuario' => ''];
+        }
+        if ($correo === '' || !filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+            return ['success' => false, 'message' => 'Debe ingresar un correo válido.', 'usuarioCambiado' => false, 'nuevoUsuario' => ''];
+        }
+        if ($this->userRepository->usernameExistsExcluding($usuario, $userId)) {
+            return ['success' => false, 'message' => 'El nombre de usuario ya está en uso.', 'usuarioCambiado' => false, 'nuevoUsuario' => ''];
+        }
+        if ($this->userRepository->emailExists($correo, $userId)) {
+            return ['success' => false, 'message' => 'El correo electrónico ya está registrado.', 'usuarioCambiado' => false, 'nuevoUsuario' => ''];
+        }
+
+        $usuarioCambiado = $usuario !== $existingUser->usuario;
+
+        try {
+            $updated = $this->userRepository->update($userId, [
+                'Nombreusuario' => $usuario,
+                'Password'      => $existingUser->password ?? '',
+                'Correo'        => $correo,
+            ]);
+        } catch (PDOException $exception) {
+            return ['success' => false, 'message' => 'No se pudo actualizar el perfil.', 'usuarioCambiado' => false, 'nuevoUsuario' => ''];
+        }
+
+        if (!$updated) {
+            return ['success' => false, 'message' => 'No se pudo actualizar el perfil.', 'usuarioCambiado' => false, 'nuevoUsuario' => ''];
+        }
+
+        return ['success' => true, 'message' => 'Perfil actualizado exitosamente.', 'usuarioCambiado' => $usuarioCambiado, 'nuevoUsuario' => $usuario];
+    }
+
+    public function changePassword(int $userId, string $newPassword): array
+    {
+        if ($userId <= 0) {
+            return ['success' => false, 'message' => 'El ID del usuario no es válido.'];
+        }
+
+        $hash = password_hash($newPassword, PASSWORD_DEFAULT);
+        if (!is_string($hash) || $hash === '') {
+            return ['success' => false, 'message' => 'No se pudo procesar la contraseña.'];
+        }
+
+        try {
+            $updated = $this->userRepository->updatePasswordHash($userId, $hash);
+        } catch (PDOException $exception) {
+            return ['success' => false, 'message' => 'No se pudo cambiar la contraseña.'];
+        }
+
+        if (!$updated) {
+            return ['success' => false, 'message' => 'No se pudo cambiar la contraseña.'];
+        }
+
+        return ['success' => true, 'message' => 'Contraseña actualizada exitosamente.'];
+    }
+
     public function deleteUser($id)
     {
         $userId = (int)$id;

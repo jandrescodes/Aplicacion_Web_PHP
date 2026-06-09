@@ -49,7 +49,7 @@
                 <i class="fas fa-briefcase me-1"></i> Puestos
               </a>
             </li>
-            <?php if ($nombreUsuario == "Administrador") : ?>
+            <?php if (!empty($isAdmin)) : ?>
               <li class="nav-item">
                 <a class="nav-link" href="<?= $public_base; ?>usuarios">
                   <i class="fas fa-users-cog me-1"></i> Usuarios
@@ -57,16 +57,30 @@
               </li>
             <?php endif; ?>
           </ul>
-          <div class="d-flex align-items-center">
-            <span class="navbar-text me-3 d-none d-lg-inline">
-              <i class="fas fa-user-circle me-1"></i> <?= htmlspecialchars($nombreUsuario); ?>
-            </span>
-            <form action="<?= htmlspecialchars($public_base, ENT_QUOTES, 'UTF-8'); ?>cerrar" method="post" class="d-inline">
-              <input type="hidden" name="csrf_token" value="<?= htmlspecialchars((string)$csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
-              <button type="submit" class="btn btn-outline-light btn-sm">
-                <i class="fas fa-sign-out-alt me-1"></i> Cerrar Sesión
-              </button>
-            </form>
+          <div class="d-flex align-items-center gap-2">
+            <div class="dropdown">
+              <a class="btn btn-outline-light btn-sm dropdown-toggle" href="#" role="button"
+                 data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-user-circle me-1"></i>
+                <?= htmlspecialchars($nombreUsuario, ENT_QUOTES, 'UTF-8'); ?>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                  <a class="dropdown-item" href="<?= htmlspecialchars($public_base, ENT_QUOTES, 'UTF-8'); ?>perfil">
+                    <i class="fas fa-id-card me-2"></i>Mi Perfil
+                  </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                  <form action="<?= htmlspecialchars($public_base, ENT_QUOTES, 'UTF-8'); ?>cerrar" method="post">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars((string)$csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
+                    <button type="submit" class="dropdown-item text-danger">
+                      <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                    </button>
+                  </form>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
