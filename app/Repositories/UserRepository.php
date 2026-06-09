@@ -150,4 +150,19 @@ class UserRepository implements UserRepositoryInterface
         $statement->bindParam(':ID', $id, PDO::PARAM_INT);
         return $statement->execute();
     }
+
+    public function emailExists(string $email, ?int $excludeId = null): bool
+    {
+        $sql = "SELECT COUNT(*) FROM `tbl-usuarios` WHERE Correo = :Correo";
+        if ($excludeId !== null) {
+            $sql .= " AND ID != :ExcludeId";
+        }
+        $statement = $this->connection->prepare($sql);
+        $statement->bindParam(':Correo', $email);
+        if ($excludeId !== null) {
+            $statement->bindParam(':ExcludeId', $excludeId, PDO::PARAM_INT);
+        }
+        $statement->execute();
+        return (int)$statement->fetchColumn() > 0;
+    }
 }

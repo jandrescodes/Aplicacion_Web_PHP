@@ -114,6 +114,29 @@ class UserServiceTest extends TestCase
         $this->assertFalse($result['success']);
     }
 
+    // --- createUser: email único ---
+
+    public function test_create_returns_failure_when_email_already_exists(): void
+    {
+        $this->repo->method('emailExists')->with('jdoe@example.com', null)->willReturn(true);
+        $this->repo->expects($this->never())->method('create');
+
+        $result = $this->service->createUser($this->validCreateData());
+
+        $this->assertFalse($result['success']);
+        $this->assertSame('El correo electrónico ya está registrado.', $result['message']);
+    }
+
+    public function test_create_proceeds_when_email_does_not_exist(): void
+    {
+        $this->repo->method('emailExists')->willReturn(false);
+        $this->repo->method('create')->willReturn(true);
+
+        $result = $this->service->createUser($this->validCreateData());
+
+        $this->assertTrue($result['success']);
+    }
+
     // --- createUser: repository ---
 
     public function test_create_hashes_password_before_persisting(): void
@@ -167,6 +190,29 @@ class UserServiceTest extends TestCase
 
         $this->assertFalse($result['success']);
         $this->assertSame('El ID del usuario no es válido.', $result['message']);
+    }
+
+    public function test_update_returns_failure_when_email_already_taken_by_another_user(): void
+    {
+        $this->repo->method('findById')->willReturn($this->makeUser());
+        $this->repo->method('emailExists')->with('jdoe@example.com', 2)->willReturn(true);
+        $this->repo->expects($this->never())->method('update');
+
+        $result = $this->service->updateUser(2, $this->validUpdateData());
+
+        $this->assertFalse($result['success']);
+        $this->assertSame('El correo electrónico ya está registrado.', $result['message']);
+    }
+
+    public function test_update_allows_keeping_same_email(): void
+    {
+        $this->repo->method('findById')->willReturn($this->makeUser());
+        $this->repo->method('emailExists')->with('jdoe@example.com', 2)->willReturn(false);
+        $this->repo->method('update')->willReturn(true);
+
+        $result = $this->service->updateUser(2, $this->validUpdateData());
+
+        $this->assertTrue($result['success']);
     }
 
     public function test_update_returns_failure_when_user_not_found(): void

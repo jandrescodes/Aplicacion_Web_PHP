@@ -26,4 +26,6 @@ interface UserRepositoryInterface
     public function setRememberToken(int $id, string $tokenHash, string $expiresAt): bool;
 
     public function clearRememberToken(int $id): bool;
+
+    public function emailExists(string $email, ?int $excludeId = null): bool;
 }

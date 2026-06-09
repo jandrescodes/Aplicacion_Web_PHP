@@ -37,6 +37,11 @@ class UserService
             return ['success' => false, 'message' => $validationError];
         }
 
+        $correo = trim((string)($data['correo'] ?? ''));
+        if ($this->userRepository->emailExists($correo)) {
+            return ['success' => false, 'message' => 'El correo electrónico ya está registrado.'];
+        }
+
         $rawPassword = trim((string)($data['password'] ?? ''));
         $passwordHash = password_hash($rawPassword, PASSWORD_DEFAULT);
         if (!is_string($passwordHash) || $passwordHash === '') {
@@ -47,7 +52,7 @@ class UserService
             $created = $this->userRepository->create([
                 'Nombreusuario' => trim((string)($data['usuario'] ?? '')),
                 'Password' => $passwordHash,
-                'Correo' => trim((string)($data['correo'] ?? ''))
+                'Correo' => $correo,
             ]);
         } catch (PDOException $exception) {
             return ['success' => false, 'message' => 'No se pudo crear el usuario.'];
@@ -75,6 +80,11 @@ class UserService
         $existingUser = $this->userRepository->findById($userId);
         if ($existingUser === null) {
             return ['success' => false, 'message' => 'No se encontró el usuario a editar.'];
+        }
+
+        $correo = trim((string)($data['correo'] ?? ''));
+        if ($this->userRepository->emailExists($correo, $userId)) {
+            return ['success' => false, 'message' => 'El correo electrónico ya está registrado.'];
         }
 
         $rawPassword = trim((string)($data['password'] ?? ''));
