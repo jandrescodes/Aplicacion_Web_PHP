@@ -11,7 +11,7 @@
             </div>
         </div>
         <div class="card-body">
-            <table class="table table-hover table-bordered" id="tabla_id" style="visibility: hidden;">
+            <table class="table table-hover table-bordered" id="tabla_id" data-module="employees" style="visibility: hidden;">
                 <thead class="table-light">
                     <tr>
                         <th scope="col" class="text-center" style="width: 50px;">#</th>

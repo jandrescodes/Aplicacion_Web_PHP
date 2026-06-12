@@ -9,7 +9,7 @@
             </a>
         </div>
         <div class="card-body">
-            <table class="table table-hover table-bordered" id="tabla_id" style="visibility: hidden;">
+            <table class="table table-hover table-bordered" id="tabla_id" data-module="users" style="visibility: hidden;">
                 <thead class="bg-light text-muted small text-uppercase">
                     <tr>
                         <th class="text-center" style="width: 80px;">#</th>
