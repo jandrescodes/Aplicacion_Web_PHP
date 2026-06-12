@@ -122,9 +122,16 @@ Controller POST method:
 ## Frontend
 
 - Bootstrap 5 + FontAwesome 6 (CDN)
-- DataTables for listings
+- DataTables 1.13 + Buttons 2.3 for listings — includes PDF, Excel, CSV, Print, and column visibility buttons
 - SweetAlert2 for confirmations and toast notifications
 - AJAX deletion pattern: JS in `public/js/{employees,positions,users}.js` calls POST endpoints and removes the table row on success without reloading
+
+**DataTables Buttons setup:**
+- CDN scripts (JSZip, pdfmake, Buttons core/bootstrap5/html5/print/colvis) are loaded in `layout/footer.php` with SRI hashes.
+- All three listing tables (`#tabla_id`) carry a `data-module` attribute (`users`, `employees`, `positions`).
+- A single DataTable init in `public/js/main.js` reads `data-module` to apply per-module config: report titles, filenames, export column indices, and localized "sInfo" strings.
+- Export columns per module: users `[0,1,2]`, employees `[0,1,4,5]` (name, position, date — skips photo/CV/actions), positions `[0,1]`.
+- Module scripts (`employees.js`, etc.) only contain AJAX delete logic and load before DataTables; the init must stay in `main.js`.
 
 ## Database
 

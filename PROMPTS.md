@@ -401,5 +401,5 @@ Devuelve en este orden:
 
 ---
 
-_Última actualización: 2026-06-09 — módulo de perfil de usuario (ProfileController/UseCase/Service); validación de email único en UserService; navbar usa `!empty($isAdmin)` en lugar de comparación de nombre de usuario; `isAdmin` pasado desde `Controller::renderWithLayout()` a todas las vistas._
+_Última actualización: 2026-06-12 — DataTables Buttons (PDF/Excel/CSV/Print/ColVis) habilitados en los tres módulos de listado; CDN con SRI en footer.php; init unificada en main.js con detección por `data-module`; columnas de exportación configuradas por módulo._
 _Mantener sincronizado con CLAUDE.md al inicio de cada sesión._

@@ -71,7 +71,7 @@ La aplicación usa un framework PHP propio con Composer PSR-4 y separación estr
 - Protección CSRF en formularios y peticiones AJAX (meta tag + header)
 - Eliminación asíncrona con AJAX + SweetAlert2 sin recargar la página
 - Notificaciones Flash integradas con SweetAlert2 con mensajes específicos por módulo y acción
-- DataTables con búsqueda, paginación y diseño responsivo
+- DataTables con búsqueda, paginación, diseño responsivo y exportación de reportes (PDF, Excel, CSV, impresión) con botón de visibilidad de columnas
 - Generación de cartas de recomendación en PDF con dompdf (abre inline en el visor del navegador)
 - Prevención de SQL injection con sentencias preparadas PDO
 
@@ -137,7 +137,7 @@ Los logs de la aplicación se escriben en `storage/logs/app.log` con rotación d
 ## Frontend
 
 - Bootstrap 5 + FontAwesome 6 (CDN)
-- jQuery + DataTables
+- jQuery + DataTables 1.13 + Buttons 2.3 (exportación PDF/Excel/CSV/Print + visibilidad de columnas)
 - SweetAlert2
 
 ## Base de datos
