@@ -127,6 +127,7 @@ Controller POST method:
 - AJAX deletion pattern: JS in `public/js/{employees,positions,users}.js` calls POST endpoints and removes the table row on success without reloading
 
 **DataTables Buttons setup:**
+
 - CDN scripts (JSZip, pdfmake, Buttons core/bootstrap5/html5/print/colvis) are loaded in `layout/footer.php` with SRI hashes.
 - All three listing tables (`#tabla_id`) carry a `data-module` attribute (`users`, `employees`, `positions`).
 - A single DataTable init in `public/js/main.js` reads `data-module` to apply per-module config: report titles, filenames, export column indices, and localized "sInfo" strings.
@@ -159,6 +160,17 @@ File uploads land in `public/storage/uploads/`. Default assets (`user-default.jp
 ## Password hashing
 
 `AuthService::authenticate()` auto-migrates plain-text passwords to bcrypt on the first successful login — do not add migration logic elsewhere. `UserService` always calls `password_hash()` on create and update. The seeder (`database/seeders.sql`) stores bcrypt hashes; comments above the INSERT lines show the plain-text values for local dev reference.
+
+## Dashboard
+
+`GET /` is handled by `DashboardController::index()` — the post-login landing page.
+
+- **No Request DTO, no OperationResult** — read-only, no user input.
+- **No Service** — `DashboardUseCase::getMetrics()` calls the three existing repo interfaces directly; no new bindings in `config/container.php`.
+- **Metrics**: `countAll()` on `EmployeeRepository`, `PositionRepository`, `UserRepository`; `countByPosition()` (LEFT JOIN) on `EmployeeRepository`.
+- **Access control**: `total_usuarios` is computed but only passed to the view when `$_SESSION['is_admin']` is truthy — non-admins never receive the value.
+- **Aliases**: `GET /dashboard`, `/index`, `/home` all redirect to `/` via `HomeController::alias()`.
+- **No `module_header`**: the dashboard view uses its own welcome jumbotron as visual header — `pageHeaderData()` is not called.
 
 ## Logs
 

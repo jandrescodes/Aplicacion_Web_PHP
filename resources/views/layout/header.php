@@ -63,14 +63,14 @@
               </li>
             <?php endif; ?>
           </ul>
-          <div class="d-flex align-items-center gap-2">
+          <div class="mt-2 mt-lg-0">
             <div class="dropdown">
-              <a class="btn btn-outline-light btn-sm dropdown-toggle" href="#" role="button"
+              <a class="btn btn-outline-light btn-sm dropdown-toggle w-100" href="#" role="button"
                 data-bs-toggle="dropdown" aria-expanded="false">
                 <i class="fas fa-user-circle me-1"></i>
                 <?= htmlspecialchars($nombreUsuario, ENT_QUOTES, 'UTF-8'); ?>
               </a>
-              <ul class="dropdown-menu dropdown-menu-end">
+              <ul class="dropdown-menu dropdown-menu-lg-end">
                 <li>
                   <a class="dropdown-item" href="<?= htmlspecialchars($public_base, ENT_QUOTES, 'UTF-8'); ?>perfil">
                     <i class="fas fa-id-card me-2"></i>Mi Perfil

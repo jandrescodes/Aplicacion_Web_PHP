@@ -57,6 +57,7 @@ La aplicación usa un framework PHP propio con Composer PSR-4 y separación estr
 
 ## Características
 
+- Dashboard de inicio con métricas de conteo por módulo y distribución de empleados por puesto (Bootstrap progress bars, sin librerías de gráficas)
 - Arquitectura por capas clásica: HTTP → Application → Domain → Infrastructure
 - DI Container liviano con resolución por reflexión (`core/Container.php`)
 - Request DTOs tipados — `$_POST` nunca cruza la frontera HTTP
