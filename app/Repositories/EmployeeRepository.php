@@ -142,4 +142,27 @@ class EmployeeRepository implements EmployeeRepositoryInterface
         $statement->bindParam(':ID', $id, PDO::PARAM_INT);
         return $statement->execute();
     }
+
+    public function countAll(): int
+    {
+        $statement = $this->connection->prepare(
+            "SELECT COUNT(*) FROM `tbl-empleados`"
+        );
+        $statement->execute();
+        return (int)$statement->fetchColumn();
+    }
+
+    /** @return array<array{puesto: string, total: int}> */
+    public function countByPosition(): array
+    {
+        $statement = $this->connection->prepare(
+            "SELECT p.Nombredelpuesto AS puesto, COUNT(e.ID) AS total
+             FROM `tbl-puestos` p
+             LEFT JOIN `tbl-empleados` e ON e.Idpuesto = p.ID
+             GROUP BY p.ID, p.Nombredelpuesto
+             ORDER BY total DESC, p.Nombredelpuesto ASC"
+        );
+        $statement->execute();
+        return $statement->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

@@ -24,4 +24,9 @@ interface EmployeeRepositoryInterface
     public function update(int $id, array $data): bool;
 
     public function deleteById(int $id): bool;
+
+    public function countAll(): int;
+
+    /** @return array<array{puesto: string, total: int}> */
+    public function countByPosition(): array;
 }

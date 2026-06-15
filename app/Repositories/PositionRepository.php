@@ -76,4 +76,13 @@ class PositionRepository implements PositionRepositoryInterface
         $statement->bindParam(':ID', $id, PDO::PARAM_INT);
         return $statement->execute();
     }
+
+    public function countAll(): int
+    {
+        $statement = $this->connection->prepare(
+            "SELECT COUNT(*) FROM `tbl-puestos`"
+        );
+        $statement->execute();
+        return (int)$statement->fetchColumn();
+    }
 }

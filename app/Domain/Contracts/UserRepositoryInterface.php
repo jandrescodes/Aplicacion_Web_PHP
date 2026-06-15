@@ -30,4 +30,6 @@ interface UserRepositoryInterface
     public function emailExists(string $email, ?int $excludeId = null): bool;
 
     public function usernameExistsExcluding(string $username, int $excludeId): bool;
+
+    public function countAll(): int;
 }

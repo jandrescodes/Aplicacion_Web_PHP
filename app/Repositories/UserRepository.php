@@ -177,4 +177,13 @@ class UserRepository implements UserRepositoryInterface
         $statement->execute();
         return (int)$statement->fetchColumn() > 0;
     }
+
+    public function countAll(): int
+    {
+        $statement = $this->connection->prepare(
+            "SELECT COUNT(*) FROM `tbl-usuarios`"
+        );
+        $statement->execute();
+        return (int)$statement->fetchColumn();
+    }
 }

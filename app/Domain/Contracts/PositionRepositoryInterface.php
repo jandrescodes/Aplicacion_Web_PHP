@@ -16,4 +16,6 @@ interface PositionRepositoryInterface
     public function update(int $id, string $name): bool;
 
     public function deleteById(int $id): bool;
+
+    public function countAll(): int;
 }
