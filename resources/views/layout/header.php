@@ -41,6 +41,11 @@
         <div class="collapse navbar-collapse" id="mainNavbar">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
+              <a class="nav-link" href="<?= $public_base; ?>">
+                <i class="fas fa-gauge-high me-1"></i> Inicio
+              </a>
+            </li>
+            <li class="nav-item">
               <a class="nav-link" href="<?= $public_base; ?>empleados">
                 <i class="fas fa-user-tie me-1"></i> Empleados
               </a>

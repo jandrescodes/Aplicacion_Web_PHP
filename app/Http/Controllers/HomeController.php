@@ -13,10 +13,7 @@ class HomeController extends Controller
 
     public function index(): void
     {
-        $this->requireLogin();
-        $nombreUsuario = $this->currentUser();
-        $esAdministrador = $nombreUsuario === 'Administrador';
-        $this->renderWithLayout('home/index.php', compact('nombreUsuario', 'esAdministrador'));
+        $this->redirect('');
     }
 
     public function alias(): void

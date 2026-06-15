@@ -19,10 +19,10 @@ return static function (Router $router, Container $container): void {
     $users     = $container->resolve(UsersController::class);
     $profile   = $container->resolve(ProfileController::class);
 
-    $router->get('/',          [$home, 'index']);
+    $router->get('/',          [$dashboard, 'index']);
     $router->get('/index',     [$home, 'alias']);
     $router->get('/home',      [$home, 'alias']);
-    $router->get('/dashboard', [$dashboard, 'index']);
+    $router->get('/dashboard', [$home, 'alias']);
 
     $router->get('/login',   [$auth, 'showLogin']);
     $router->post('/login',  [$auth, 'login']);
