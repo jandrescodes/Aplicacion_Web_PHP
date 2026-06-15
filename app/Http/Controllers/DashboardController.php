@@ -19,16 +19,9 @@ class DashboardController extends Controller
     {
         $this->requireLogin();
         $metrics = $this->dashboardUseCase->getMetrics();
-        $this->renderWithLayout(
-            'dashboard/index.php',
-            array_merge(
-                $metrics,
-                $this->pageHeaderData(
-                    'Dashboard',
-                    'fas fa-gauge-high',
-                    $this->moduleBreadcrumbs('Dashboard', 'dashboard', 'fas fa-gauge-high')
-                )
-            )
-        );
+        if (empty($_SESSION['is_admin'])) {
+            unset($metrics['total_usuarios']);
+        }
+        $this->renderWithLayout('dashboard/index.php', $metrics);
     }
 }
