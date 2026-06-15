@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeesController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PositionsController;
@@ -12,14 +13,16 @@ use Core\Router;
 return static function (Router $router, Container $container): void {
     $home      = $container->resolve(HomeController::class);
     $auth      = $container->resolve(AuthController::class);
+    $dashboard = $container->resolve(DashboardController::class);
     $employees = $container->resolve(EmployeesController::class);
     $positions = $container->resolve(PositionsController::class);
     $users     = $container->resolve(UsersController::class);
     $profile   = $container->resolve(ProfileController::class);
 
-    $router->get('/',      [$home, 'index']);
-    $router->get('/index', [$home, 'alias']);
-    $router->get('/home',  [$home, 'alias']);
+    $router->get('/',          [$home, 'index']);
+    $router->get('/index',     [$home, 'alias']);
+    $router->get('/home',      [$home, 'alias']);
+    $router->get('/dashboard', [$dashboard, 'index']);
 
     $router->get('/login',   [$auth, 'showLogin']);
     $router->post('/login',  [$auth, 'login']);
