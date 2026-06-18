@@ -256,7 +256,7 @@ y PHP sin framework.
 
 [Contexto]
 Proyecto: Sistema de Gestión de Empleados — PHP 8.x custom, sin framework.
-Estado actual: módulos implementados — dashboard (landing en GET /), empleados, puestos, usuarios, auth, perfil de usuario.
+Estado actual: módulos implementados — dashboard (landing en GET /), empleados, puestos, usuarios, auth, perfil de usuario, auditoría (GET /auditoria, admin-only).
 BD: tbl-empleados, tbl-puestos, tbl-usuarios (ver database/schema.sql). tbl-usuarios incluye is_admin TINYINT(1) para control de acceso por rol — no usar el nombre de usuario para verificar permisos.
 Arquitectura: Controller → Request DTO → UseCase (OperationResult) → Service → Repository.
 Framework interno en core/ (Router, View, Flash, Security, ErrorPage, Container).
@@ -401,5 +401,5 @@ Devuelve en este orden:
 
 ---
 
-_Última actualización: 2026-06-14 — Dashboard agregado como landing en `GET /`; métricas de conteo por módulo con progress bars Bootstrap; `total_usuarios` restringido a admins; `GET /dashboard` redirige a raíz._
+_Última actualización: 2026-06-18 — Audit log implementado: tabla `audit_log` append-only, `AuditService` fail-silent, integrado en 4 UseCases (Employee/Position/User/Profile); vista admin `GET /auditoria` con DataTables._
 _Mantener sincronizado con CLAUDE.md al inicio de cada sesión._

@@ -129,9 +129,9 @@ Controller POST method:
 **DataTables Buttons setup:**
 
 - CDN scripts (JSZip, pdfmake, Buttons core/bootstrap5/html5/print/colvis) are loaded in `layout/footer.php` with SRI hashes.
-- All three listing tables (`#tabla_id`) carry a `data-module` attribute (`users`, `employees`, `positions`).
+- All listing tables (`#tabla_id`) carry a `data-module` attribute (`users`, `employees`, `positions`, `audit`).
 - A single DataTable init in `public/js/main.js` reads `data-module` to apply per-module config: report titles, filenames, export column indices, and localized "sInfo" strings.
-- Export columns per module: users `[0,1,2]`, employees `[0,1,4,5]` (name, position, date — skips photo/CV/actions), positions `[0,1]`.
+- Export columns per module: users `[0,1,2]`, employees `[0,1,4,5]` (name, position, date — skips photo/CV/actions), positions `[0,1]`, audit `[0,1,2,3,4,5]` (all columns).
 - Module scripts (`employees.js`, etc.) only contain AJAX delete logic and load before DataTables; the init must stay in `main.js`.
 
 ## Database
@@ -171,6 +171,19 @@ File uploads land in `public/storage/uploads/`. Default assets (`user-default.jp
 - **Access control**: `total_usuarios` is computed but only passed to the view when `$_SESSION['is_admin']` is truthy — non-admins never receive the value.
 - **Aliases**: `GET /dashboard`, `/index`, `/home` all redirect to `/` via `HomeController::alias()`.
 - **No `module_header`**: the dashboard view uses its own welcome jumbotron as visual header — `pageHeaderData()` is not called.
+
+## Audit Log
+
+`GET /auditoria` is handled by `AuditController::index()` — admin-only, read-only view of all audit entries.
+
+- **Table**: `audit_log` — append-only; no UPDATE/DELETE exposed anywhere.
+- **Schema**: `id`, `user_id` (INT NULL, no FK — survives user deletion), `action` (ENUM create/update/delete), `entity` (ENUM employee/position/user), `entity_id` (INT NULL), `created_at`.
+- **AuditService**: wraps `AuditRepositoryInterface`; validates entity string; fail-silent (`try/catch` logs warning, never propagates).
+- **actorId**: passed as `?int $actorId = null` argument from Controller (`$_SESSION['user_id'] ?? null`) — UseCases never read `$_SESSION`.
+- **entity_id = null for create**: repositories don't return `lastInsertId`; this is intentional.
+- **Scope**: `EmployeeUseCase`, `PositionUseCase`, `UserUseCase`, `ProfileUseCase` — all mutating operations. `AuthUseCase` excluded (session coupling, untestable).
+- **DI**: `AuditRepositoryInterface` → `AuditRepository` bound in `config/container.php`. `AuditService` autoresolved by Container.
+- **No Request DTO, no OperationResult** for `AuditUseCase` — read-only, no user input.
 
 ## Logs
 

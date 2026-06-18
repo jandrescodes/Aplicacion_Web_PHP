@@ -14,7 +14,7 @@
 
 ## Descripción
 
-Sistema integral para la gestión de recursos humanos: control de **empleados**, **puestos de trabajo** y **usuarios del sistema**, con generación de cartas de recomendación en PDF.
+Sistema integral para la gestión de recursos humanos: control de **empleados**, **puestos de trabajo** y **usuarios del sistema**, con generación de cartas de recomendación en PDF y registro de auditoría de acciones.
 
 ## Arquitectura
 
@@ -75,6 +75,7 @@ La aplicación usa un framework PHP propio con Composer PSR-4 y separación estr
 - DataTables con búsqueda, paginación, diseño responsivo y exportación de reportes (PDF, Excel, CSV, impresión) con botón de visibilidad de columnas
 - Generación de cartas de recomendación en PDF con dompdf (abre inline en el visor del navegador)
 - Prevención de SQL injection con sentencias preparadas PDO
+- Auditoría de acciones: registro append-only de create/update/delete por entidad y usuario (`audit_log`); vista admin en `GET /auditoria` con DataTables y exportación
 
 ## Testing
 
@@ -143,8 +144,9 @@ Los logs de la aplicación se escriben en `storage/logs/app.log` con rotación d
 
 ## Base de datos
 
-Tablas: `tbl-empleados`, `tbl-puestos`, `tbl-usuarios` (los guiones requieren comillas en SQL).  
+Tablas: `tbl-empleados`, `tbl-puestos`, `tbl-usuarios` (los guiones requieren comillas en SQL), `audit_log`.  
 `tbl-usuarios` incluye `remember_token` y `remember_token_expires` para "Recuérdame", e `is_admin TINYINT(1)` para control de acceso por rol.  
+`audit_log` es append-only (`id`, `user_id` NULL, `action` ENUM, `entity` ENUM, `entity_id` NULL, `created_at`); `user_id` sin FK para sobrevivir borrados de usuario.  
 La columna `Correo` tiene restricción `UNIQUE` — la unicidad se valida explícitamente en `UserService` antes del INSERT/UPDATE para dar mensajes de error claros.  
 Archivos subidos en `public/storage/uploads/`. Los assets por defecto (`user-default.jpg`, `cv_default.pdf`) están protegidos contra borrado accidental.
 
