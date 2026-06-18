@@ -72,7 +72,7 @@ class EmployeesController extends Controller
             $this->redirect('empleados-crear');
         }
 
-        $result = $this->employeeUseCase->createEmployee($req, $_FILES, $this->uploadsDirectory);
+        $result = $this->employeeUseCase->createEmployee($req, $_FILES, $this->uploadsDirectory, $_SESSION['user_id'] ?? null);
         if ($result->success) {
             Flash::set($result->message ?? 'Empleado creado exitosamente.');
             $this->redirect('empleados');
@@ -148,7 +148,7 @@ class EmployeesController extends Controller
             $this->redirect('empleados');
         }
 
-        $result = $this->employeeUseCase->updateEmployee($req, $_FILES, $this->uploadsDirectory);
+        $result = $this->employeeUseCase->updateEmployee($req, $_FILES, $this->uploadsDirectory, $_SESSION['user_id'] ?? null);
         if ($result->success) {
             Flash::set($result->message ?? 'Empleado actualizado exitosamente.');
             $this->redirect('empleados');
@@ -248,7 +248,7 @@ class EmployeesController extends Controller
         $txtID = (int)($_POST['txtID'] ?? 0);
 
         if ($txtID > 0) {
-            $deleted = $this->employeeUseCase->deleteEmployee($txtID, $this->uploadsDirectory);
+            $deleted = $this->employeeUseCase->deleteEmployee($txtID, $this->uploadsDirectory, $_SESSION['user_id'] ?? null);
             $success = $deleted;
             $message = $deleted ? 'Empleado eliminado exitosamente.' : 'No se pudo eliminar el empleado.';
         } else {

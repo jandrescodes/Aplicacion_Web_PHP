@@ -5,6 +5,7 @@ namespace Tests\Unit\UseCases;
 use App\Domain\Models\Position;
 use App\Http\Requests\Positions\StorePositionRequest;
 use App\Http\Requests\Positions\UpdatePositionRequest;
+use App\Services\AuditService;
 use App\Services\PositionService;
 use App\UseCases\DTOs\OperationResult;
 use App\UseCases\PositionUseCase;
@@ -14,12 +15,14 @@ use PHPUnit\Framework\TestCase;
 class PositionUseCaseTest extends TestCase
 {
     private PositionService&MockObject $service;
+    private AuditService&MockObject $audit;
     private PositionUseCase $useCase;
 
     protected function setUp(): void
     {
         $this->service = $this->createMock(PositionService::class);
-        $this->useCase = new PositionUseCase($this->service);
+        $this->audit   = $this->createMock(AuditService::class);
+        $this->useCase = new PositionUseCase($this->service, $this->audit);
     }
 
     private function makePosition(int $id = 1, string $nombre = 'Gerente'): Position
@@ -139,5 +142,50 @@ class PositionUseCaseTest extends TestCase
         $this->service->method('deletePosition')->willReturn(false);
 
         $this->assertFalse($this->useCase->deletePosition(99));
+    }
+
+    // --- auditoría ---
+
+    public function test_createPosition_calls_audit_logCreate_on_success(): void
+    {
+        $this->service->method('createPosition')->willReturn(['success' => true, 'message' => '']);
+        $this->audit->expects($this->once())->method('logCreate')->with(7, 'position', null);
+
+        $req = StorePositionRequest::fromArray(['nombredelpuesto' => 'Director']);
+        $this->useCase->createPosition($req, 7);
+    }
+
+    public function test_createPosition_does_not_call_audit_on_failure(): void
+    {
+        $this->service->method('createPosition')->willReturn(['success' => false, 'message' => '']);
+        $this->audit->expects($this->never())->method('logCreate');
+
+        $req = StorePositionRequest::fromArray(['nombredelpuesto' => 'Director']);
+        $this->useCase->createPosition($req, 7);
+    }
+
+    public function test_updatePosition_calls_audit_logUpdate_on_success(): void
+    {
+        $this->service->method('updatePosition')->willReturn(['success' => true, 'message' => '']);
+        $this->audit->expects($this->once())->method('logUpdate')->with(7, 'position', 4);
+
+        $req = UpdatePositionRequest::fromArray(['txtID' => '4', 'nombredelpuesto' => 'Supervisor']);
+        $this->useCase->updatePosition($req, 7);
+    }
+
+    public function test_deletePosition_calls_audit_logDelete_on_success(): void
+    {
+        $this->service->method('deletePosition')->willReturn(true);
+        $this->audit->expects($this->once())->method('logDelete')->with(7, 'position', 5);
+
+        $this->useCase->deletePosition(5, 7);
+    }
+
+    public function test_deletePosition_does_not_call_audit_on_failure(): void
+    {
+        $this->service->method('deletePosition')->willReturn(false);
+        $this->audit->expects($this->never())->method('logDelete');
+
+        $this->useCase->deletePosition(5, 7);
     }
 }

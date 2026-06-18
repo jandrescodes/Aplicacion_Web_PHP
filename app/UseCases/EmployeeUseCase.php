@@ -6,16 +6,19 @@ use App\Domain\Models\Employee;
 use App\Domain\Models\Position;
 use App\Http\Requests\Employees\StoreEmployeeRequest;
 use App\Http\Requests\Employees\UpdateEmployeeRequest;
+use App\Services\AuditService;
 use App\Services\EmployeeService;
 use App\UseCases\DTOs\OperationResult;
 
 class EmployeeUseCase
 {
     private EmployeeService $employeeService;
+    private AuditService $auditService;
 
-    public function __construct(EmployeeService $employeeService)
+    public function __construct(EmployeeService $employeeService, AuditService $auditService)
     {
         $this->employeeService = $employeeService;
+        $this->auditService    = $auditService;
     }
 
     public function listEmployees(): array
@@ -40,7 +43,7 @@ class EmployeeUseCase
         return $employee?->toArray();
     }
 
-    public function createEmployee(StoreEmployeeRequest $req, array $files, string $baseDirectory): OperationResult
+    public function createEmployee(StoreEmployeeRequest $req, array $files, string $baseDirectory, ?int $actorId = null): OperationResult
     {
         $result = $this->employeeService->createEmployee([
             'primernombre'    => $req->primerNombre,
@@ -51,13 +54,17 @@ class EmployeeUseCase
             'fechadeingreso'  => $req->fechaIngreso,
         ], $files, $baseDirectory);
 
-        return new OperationResult(
+        $operationResult = new OperationResult(
             (bool)($result['success'] ?? false),
             (string)($result['message'] ?? '')
         );
+        if ($operationResult->success) {
+            $this->auditService->logCreate($actorId, 'employee', null);
+        }
+        return $operationResult;
     }
 
-    public function updateEmployee(UpdateEmployeeRequest $req, array $files, string $baseDirectory): OperationResult
+    public function updateEmployee(UpdateEmployeeRequest $req, array $files, string $baseDirectory, ?int $actorId = null): OperationResult
     {
         $result = $this->employeeService->updateEmployee($req->id, [
             'primernombre'    => $req->primerNombre,
@@ -68,14 +75,22 @@ class EmployeeUseCase
             'fechadeingreso'  => $req->fechaIngreso,
         ], $files, $baseDirectory);
 
-        return new OperationResult(
+        $operationResult = new OperationResult(
             (bool)($result['success'] ?? false),
             (string)($result['message'] ?? '')
         );
+        if ($operationResult->success) {
+            $this->auditService->logUpdate($actorId, 'employee', $req->id);
+        }
+        return $operationResult;
     }
 
-    public function deleteEmployee(int $id, string $baseDirectory): bool
+    public function deleteEmployee(int $id, string $baseDirectory, ?int $actorId = null): bool
     {
-        return $this->employeeService->deleteEmployee($id, $baseDirectory);
+        $deleted = $this->employeeService->deleteEmployee($id, $baseDirectory);
+        if ($deleted) {
+            $this->auditService->logDelete($actorId, 'employee', $id);
+        }
+        return $deleted;
     }
 }

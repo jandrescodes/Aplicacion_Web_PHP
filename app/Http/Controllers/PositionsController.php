@@ -68,7 +68,7 @@ class PositionsController extends Controller
             $this->redirect('puestos-crear');
         }
 
-        $result = $this->positionUseCase->createPosition($req);
+        $result = $this->positionUseCase->createPosition($req, $_SESSION['user_id'] ?? null);
         if ($result->success) {
             Flash::set($result->message ?? 'Puesto creado exitosamente.');
             $this->redirect('puestos');
@@ -130,7 +130,7 @@ class PositionsController extends Controller
             $this->redirect('puestos');
         }
 
-        $result = $this->positionUseCase->updatePosition($req);
+        $result = $this->positionUseCase->updatePosition($req, $_SESSION['user_id'] ?? null);
         if ($result->success) {
             Flash::set($result->message ?? 'Puesto actualizado exitosamente.');
             $this->redirect('puestos');
@@ -172,7 +172,7 @@ class PositionsController extends Controller
         $txtID = (int)($_POST['txtID'] ?? 0);
 
         if ($txtID > 0) {
-            $deleted = $this->positionUseCase->deletePosition($txtID);
+            $deleted = $this->positionUseCase->deletePosition($txtID, $_SESSION['user_id'] ?? null);
             $success = $deleted;
             $message = $deleted ? 'Puesto eliminado exitosamente.' : 'No se pudo eliminar el puesto.';
         } else {

@@ -6,6 +6,7 @@ use App\Domain\Models\Employee;
 use App\Domain\Models\Position;
 use App\Http\Requests\Employees\StoreEmployeeRequest;
 use App\Http\Requests\Employees\UpdateEmployeeRequest;
+use App\Services\AuditService;
 use App\Services\EmployeeService;
 use App\UseCases\EmployeeUseCase;
 use App\UseCases\DTOs\OperationResult;
@@ -15,12 +16,14 @@ use PHPUnit\Framework\TestCase;
 class EmployeeUseCaseTest extends TestCase
 {
     private EmployeeService&MockObject $service;
+    private AuditService&MockObject $audit;
     private EmployeeUseCase $useCase;
 
     protected function setUp(): void
     {
         $this->service = $this->createMock(EmployeeService::class);
-        $this->useCase = new EmployeeUseCase($this->service);
+        $this->audit   = $this->createMock(AuditService::class);
+        $this->useCase = new EmployeeUseCase($this->service, $this->audit);
     }
 
     private function makeEmployee(array $overrides = []): Employee
@@ -200,5 +203,59 @@ class EmployeeUseCaseTest extends TestCase
         $this->service->method('deleteEmployee')->willReturn(false);
 
         $this->assertFalse($this->useCase->deleteEmployee(0, '/tmp'));
+    }
+
+    // --- auditoría ---
+
+    public function test_createEmployee_calls_audit_logCreate_on_success(): void
+    {
+        $this->service->method('createEmployee')->willReturn(['success' => true, 'message' => '']);
+        $this->audit->expects($this->once())->method('logCreate')->with(2, 'employee', null);
+
+        $req = StoreEmployeeRequest::fromArray([
+            'primernombre' => 'Ana', 'primerapellido' => 'Gómez', 'segundoapellido' => 'Ruiz',
+            'idpuesto' => '1', 'fechadeingreso' => '2024-01-01',
+        ]);
+        $this->useCase->createEmployee($req, [], '/tmp', 2);
+    }
+
+    public function test_createEmployee_does_not_call_audit_on_failure(): void
+    {
+        $this->service->method('createEmployee')->willReturn(['success' => false, 'message' => '']);
+        $this->audit->expects($this->never())->method('logCreate');
+
+        $req = StoreEmployeeRequest::fromArray([
+            'primernombre' => 'Ana', 'primerapellido' => 'Gómez', 'segundoapellido' => 'Ruiz',
+            'idpuesto' => '1', 'fechadeingreso' => '2024-01-01',
+        ]);
+        $this->useCase->createEmployee($req, [], '/tmp', 2);
+    }
+
+    public function test_updateEmployee_calls_audit_logUpdate_on_success(): void
+    {
+        $this->service->method('updateEmployee')->willReturn(['success' => true, 'message' => '']);
+        $this->audit->expects($this->once())->method('logUpdate')->with(2, 'employee', 5);
+
+        $req = UpdateEmployeeRequest::fromArray([
+            'txtID' => '5', 'primernombre' => 'Juan', 'primerapellido' => 'Pérez',
+            'segundoapellido' => 'López', 'idpuesto' => '3', 'fechadeingreso' => '2024-01-15',
+        ]);
+        $this->useCase->updateEmployee($req, [], '/tmp', 2);
+    }
+
+    public function test_deleteEmployee_calls_audit_logDelete_on_success(): void
+    {
+        $this->service->method('deleteEmployee')->willReturn(true);
+        $this->audit->expects($this->once())->method('logDelete')->with(2, 'employee', 3);
+
+        $this->useCase->deleteEmployee(3, '/tmp', 2);
+    }
+
+    public function test_deleteEmployee_does_not_call_audit_on_failure(): void
+    {
+        $this->service->method('deleteEmployee')->willReturn(false);
+        $this->audit->expects($this->never())->method('logDelete');
+
+        $this->useCase->deleteEmployee(3, '/tmp', 2);
     }
 }

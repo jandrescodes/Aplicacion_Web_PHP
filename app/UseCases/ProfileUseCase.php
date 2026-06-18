@@ -4,13 +4,17 @@ namespace App\UseCases;
 
 use App\Http\Requests\Profile\ChangePasswordRequest;
 use App\Http\Requests\Profile\UpdateProfileRequest;
+use App\Services\AuditService;
 use App\Services\UserService;
 use App\UseCases\DTOs\OperationResult;
 use Core\Security;
 
 class ProfileUseCase
 {
-    public function __construct(private UserService $userService) {}
+    public function __construct(
+        private UserService $userService,
+        private AuditService $auditService,
+    ) {}
 
     public function getProfile(int $userId): ?array
     {
@@ -29,7 +33,11 @@ class ProfileUseCase
             $_SESSION['usuario'] = $result['nuevoUsuario'];
         }
 
-        return new OperationResult((bool)$result['success'], (string)$result['message']);
+        $operationResult = new OperationResult((bool)$result['success'], (string)$result['message']);
+        if ($operationResult->success) {
+            $this->auditService->logUpdate($req->userId, 'user', $req->userId);
+        }
+        return $operationResult;
     }
 
     public function changePassword(ChangePasswordRequest $req): OperationResult
@@ -40,7 +48,10 @@ class ProfileUseCase
         }
 
         $result = $this->userService->changePassword($req->userId, $req->newPassword);
-
-        return new OperationResult((bool)$result['success'], (string)$result['message']);
+        $operationResult = new OperationResult((bool)$result['success'], (string)$result['message']);
+        if ($operationResult->success) {
+            $this->auditService->logUpdate($req->userId, 'user', $req->userId);
+        }
+        return $operationResult;
     }
 }

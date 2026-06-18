@@ -5,6 +5,7 @@ namespace Tests\Unit\UseCases;
 use App\Domain\Models\User;
 use App\Http\Requests\Users\StoreUserRequest;
 use App\Http\Requests\Users\UpdateUserRequest;
+use App\Services\AuditService;
 use App\Services\UserService;
 use App\UseCases\DTOs\OperationResult;
 use App\UseCases\UserUseCase;
@@ -14,12 +15,14 @@ use PHPUnit\Framework\TestCase;
 class UserUseCaseTest extends TestCase
 {
     private UserService&MockObject $service;
+    private AuditService&MockObject $audit;
     private UserUseCase $useCase;
 
     protected function setUp(): void
     {
         $this->service = $this->createMock(UserService::class);
-        $this->useCase = new UserUseCase($this->service);
+        $this->audit   = $this->createMock(AuditService::class);
+        $this->useCase = new UserUseCase($this->service, $this->audit);
     }
 
     private function makeUser(int $id = 1, string $usuario = 'admin'): User
@@ -164,5 +167,50 @@ class UserUseCaseTest extends TestCase
         $this->service->method('deleteUser')->willReturn(false);
 
         $this->assertFalse($this->useCase->deleteUser(99));
+    }
+
+    // --- auditoría ---
+
+    public function test_createUser_calls_audit_logCreate_on_success(): void
+    {
+        $this->service->method('createUser')->willReturn(['success' => true, 'message' => '']);
+        $this->audit->expects($this->once())->method('logCreate')->with(1, 'user', null);
+
+        $req = StoreUserRequest::fromArray(['usuario' => 'jdoe', 'password' => 'secret123', 'correo' => 'jdoe@example.com']);
+        $this->useCase->createUser($req, 1);
+    }
+
+    public function test_createUser_does_not_call_audit_on_failure(): void
+    {
+        $this->service->method('createUser')->willReturn(['success' => false, 'message' => '']);
+        $this->audit->expects($this->never())->method('logCreate');
+
+        $req = StoreUserRequest::fromArray(['usuario' => 'jdoe', 'password' => 'secret123', 'correo' => 'jdoe@example.com']);
+        $this->useCase->createUser($req, 1);
+    }
+
+    public function test_updateUser_calls_audit_logUpdate_on_success(): void
+    {
+        $this->service->method('updateUser')->willReturn(['success' => true, 'message' => '']);
+        $this->audit->expects($this->once())->method('logUpdate')->with(1, 'user', 3);
+
+        $req = UpdateUserRequest::fromArray(['txtID' => '3', 'usuario' => 'jdoe', 'password' => '', 'correo' => 'jdoe@example.com']);
+        $this->useCase->updateUser($req, 1);
+    }
+
+    public function test_deleteUser_calls_audit_logDelete_on_success(): void
+    {
+        $this->service->method('deleteUser')->willReturn(true);
+        $this->audit->expects($this->once())->method('logDelete')->with(1, 'user', 4);
+
+        $this->useCase->deleteUser(4, 1);
+    }
+
+    public function test_deleteUser_does_not_call_audit_on_failure(): void
+    {
+        $this->service->method('deleteUser')->willReturn(false);
+        $this->audit->expects($this->never())->method('logDelete');
+
+        $this->useCase->deleteUser(4, 1);
     }
 }

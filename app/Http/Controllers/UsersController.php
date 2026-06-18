@@ -71,7 +71,7 @@ class UsersController extends Controller
             $this->redirect('usuarios-crear');
         }
 
-        $result = $this->userUseCase->createUser($req);
+        $result = $this->userUseCase->createUser($req, $_SESSION['user_id'] ?? null);
         if ($result->success) {
             Flash::set($result->message ?? 'Usuario creado exitosamente.');
             $this->redirect('usuarios');
@@ -136,7 +136,7 @@ class UsersController extends Controller
             $this->redirect('usuarios');
         }
 
-        $result = $this->userUseCase->updateUser($req);
+        $result = $this->userUseCase->updateUser($req, $_SESSION['user_id'] ?? null);
         if ($result->success) {
             Flash::set($result->message ?? 'Usuario actualizado exitosamente.');
             $this->redirect('usuarios');
@@ -180,7 +180,7 @@ class UsersController extends Controller
         $txtID = (int)($_POST['txtID'] ?? 0);
 
         if ($txtID > 0) {
-            $deleted = $this->userUseCase->deleteUser($txtID);
+            $deleted = $this->userUseCase->deleteUser($txtID, $_SESSION['user_id'] ?? null);
             $success = $deleted;
             $message = $deleted ? 'Usuario eliminado exitosamente.' : 'No se pudo eliminar el usuario.';
         } else {
