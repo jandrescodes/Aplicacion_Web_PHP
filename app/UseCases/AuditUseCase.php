@@ -10,6 +10,6 @@ class AuditUseCase
 
     public function listEntries(): array
     {
-        return $this->auditService->entries();
+        return array_map(fn($entry) => $entry->toArray(), $this->auditService->entries());
     }
 }

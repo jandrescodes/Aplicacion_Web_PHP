@@ -30,7 +30,7 @@
                                     <span class="text-muted small">—</span>
                                 <?php endif; ?>
                             </td>
-                            <td>
+                            <td class="text-center">
                                 <?php
                                 $actionMap = [
                                     'create' => ['bg-success', 'fas fa-plus-circle', 'Crear'],
