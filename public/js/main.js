@@ -59,6 +59,15 @@ $(document).ready(function () {
                 sInfo: 'Mostrando registros del _START_ al _END_ de un total de _TOTAL_ puestos',
                 sInfoEmpty: 'Mostrando registros del 0 al 0 de un total de 0 puestos',
                 sInfoFiltered: '(filtrado de un total de _MAX_ puestos)'
+            },
+            audit: {
+                title: 'Reporte de Auditoría - Sistema de Gestión Hospitalaria',
+                filename: 'reporte_auditoria_' + new Date().toISOString().slice(0, 10),
+                subtitle: 'Registro de acciones del sistema',
+                exportColumns: [0, 1, 2, 3, 4, 5],
+                sInfo: 'Mostrando registros del _START_ al _END_ de un total de _TOTAL_ entradas',
+                sInfoEmpty: 'Mostrando registros del 0 al 0 de un total de 0 entradas',
+                sInfoFiltered: '(filtrado de un total de _MAX_ entradas)'
             }
         };
 

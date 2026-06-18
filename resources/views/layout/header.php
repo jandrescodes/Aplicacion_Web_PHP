@@ -61,6 +61,11 @@
                   <i class="fas fa-users-cog me-1"></i> Usuarios
                 </a>
               </li>
+              <li class="nav-item">
+                <a class="nav-link" href="<?= $public_base; ?>auditoria">
+                  <i class="fas fa-clipboard-list me-1"></i> Auditoría
+                </a>
+              </li>
             <?php endif; ?>
           </ul>
           <div class="mt-2 mt-lg-0">

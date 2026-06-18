@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuditController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmployeesController;
@@ -18,6 +19,7 @@ return static function (Router $router, Container $container): void {
     $positions = $container->resolve(PositionsController::class);
     $users     = $container->resolve(UsersController::class);
     $profile   = $container->resolve(ProfileController::class);
+    $audit     = $container->resolve(AuditController::class);
 
     $router->get('/',          [$dashboard, 'index']);
     $router->get('/index',     [$home, 'alias']);
@@ -53,4 +55,6 @@ return static function (Router $router, Container $container): void {
     $router->get('/usuarios-editar',  [$users, 'editForm']);
     $router->post('/usuarios-editar', [$users, 'edit']);
     $router->post('/usuarios-eliminar', [$users, 'delete']);
+
+    $router->get('/auditoria', [$audit, 'index']);
 };
