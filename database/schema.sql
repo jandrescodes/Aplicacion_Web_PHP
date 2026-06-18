@@ -34,3 +34,15 @@ CREATE TABLE IF NOT EXISTS `tbl-usuarios` (
   UNIQUE KEY `Correo` (`Correo`),
   INDEX `idx_remember_token` (`remember_token`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `audit_log` (
+  `id`         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id`    INT NULL,
+  `action`     ENUM('create','update','delete') NOT NULL,
+  `entity`     ENUM('employee','position','user') NOT NULL,
+  `entity_id`  INT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_audit_created` (`created_at`),
+  KEY `idx_audit_entity` (`entity`, `entity_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
