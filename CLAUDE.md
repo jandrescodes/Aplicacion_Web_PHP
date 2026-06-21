@@ -185,6 +185,19 @@ File uploads land in `public/storage/uploads/`. Default assets (`user-default.jp
 - **DI**: `AuditRepositoryInterface` → `AuditRepository` bound in `config/container.php`. `AuditService` autoresolved by Container.
 - **No Request DTO, no OperationResult** for `AuditUseCase` — read-only, no user input.
 
+## Event Dispatcher
+
+Cross-cutting events decouple UseCases from `AuditService`. Pattern: UseCase → dispatches event → `AuditListener` → `AuditService`.
+
+- **Contract**: `App\Domain\Contracts\EventDispatcherInterface` — `dispatch(object $event): void`, `listen(string $eventClass, callable $listener): void`
+- **Implementation**: `Core\EventDispatcher` — fail-silent per listener (`try/catch`); **must be singleton** in the container (if not, `config/events.php` registers listeners on a different instance than the one UseCases receive)
+- **Events**: POPOs in `app/Domain/Events/` — `Employee{Created,Updated,Deleted}`, `Position{Created,Updated,Deleted}`, `User{Created,Updated,Deleted}`, `ProfileUpdated`, `PasswordChanged`. Each carries `actorId`, `entity`, `entityId` (null for create)
+- **Listener**: `App\Listeners\AuditListener` — receives `AuditService`; each `handle*` method translates the event to the corresponding `logCreate/logUpdate/logDelete` call
+- **Registration**: `config/events.php` — loaded in `public/index.php` after container bindings; maps each event class to `AuditListener`
+- **UseCases**: `EmployeeUseCase`, `PositionUseCase`, `UserUseCase`, `ProfileUseCase` inject `EventDispatcherInterface` (not `AuditService` directly)
+- **`AuditService` scope**: used only in `AuditListener`, `AuditUseCase`, `AuditController` — never in domain/application UseCases
+- **Testing**: mock `EventDispatcherInterface` in UseCase tests; assert `dispatch()` is called with the correct event instance and `actorId`. `AuditListener` tests mock `AuditService` and assert `logX` is called correctly
+
 ## Logs
 
 App logs are written to `storage/logs/app.log`. The directory is tracked in git via `.gitkeep`; log files are gitignored. Do not delete the `storage/logs/` directory.

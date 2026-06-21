@@ -48,12 +48,15 @@ La aplicación usa un framework PHP propio con Composer PSR-4 y separación estr
 │  app/Infrastructure/         ← EmployeeFileStorage          │
 │  config/Database.php         ← PDO singleton                │
 └─────────────────────────────────────────────────────────────┘
-  Cross-cutting: core/Container · Router · View · Flash · Security
-  Config:        config/AppLogger.php (Monolog singleton)
+  Cross-cutting: core/Container · Router · View · Flash · Security · EventDispatcher
+  Config:        config/AppLogger.php (Monolog singleton) · config/events.php (listener registration)
 ```
 
 **Flujo de una petición POST:**
 `index.php` → `Router` → `Controller` → `XxxRequest::fromArray($_POST)` → `validate()` → `UseCase` → `Service` → `Repository` → DB → `OperationResult`
+
+**Flujo de auditoría (cross-cutting via eventos):**
+`UseCase` → `EventDispatcher::dispatch(EventoPOPO)` → `AuditListener::handle*()` → `AuditService` → `audit_log`
 
 ## Características
 
@@ -76,6 +79,7 @@ La aplicación usa un framework PHP propio con Composer PSR-4 y separación estr
 - Generación de cartas de recomendación en PDF con dompdf (abre inline en el visor del navegador)
 - Prevención de SQL injection con sentencias preparadas PDO
 - Auditoría de acciones: registro append-only de create/update/delete por entidad y usuario (`audit_log`); vista admin en `GET /auditoria` con DataTables y exportación
+- EventDispatcher propio (sin librerías): desacopla UseCases de `AuditService` mediante eventos de dominio (POPOs en `app/Domain/Events/`) y un `AuditListener`; los UseCases emiten eventos, el listener los traduce a llamadas de auditoría
 
 ## Testing
 

@@ -401,5 +401,5 @@ Devuelve en este orden:
 
 ---
 
-_Última actualización: 2026-06-18 — Audit log implementado: tabla `audit_log` append-only, `AuditService` fail-silent, integrado en 4 UseCases (Employee/Position/User/Profile); vista admin `GET /auditoria` con DataTables._
+_Última actualización: 2026-06-21 — EventDispatcher implementado: UseCases emiten eventos de dominio (POPOs en `app/Domain/Events/`); `AuditListener` los traduce a `AuditService`; registro en `config/events.php`; `EventDispatcher` singleton en `core/`. `AuditService` ya no se inyecta directamente en UseCases de negocio._
 _Mantener sincronizado con CLAUDE.md al inicio de cada sesión._
