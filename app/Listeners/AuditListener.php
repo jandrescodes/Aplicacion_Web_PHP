@@ -8,6 +8,8 @@ use App\Domain\Events\EmployeeUpdated;
 use App\Domain\Events\PositionCreated;
 use App\Domain\Events\PositionDeleted;
 use App\Domain\Events\PositionUpdated;
+use App\Domain\Events\PasswordChanged;
+use App\Domain\Events\ProfileUpdated;
 use App\Domain\Events\UserCreated;
 use App\Domain\Events\UserDeleted;
 use App\Domain\Events\UserUpdated;
@@ -60,5 +62,15 @@ class AuditListener
     public function onUserDeleted(UserDeleted $event): void
     {
         $this->auditService->logDelete($event->actorId, 'user', $event->entityId);
+    }
+
+    public function onProfileUpdated(ProfileUpdated $event): void
+    {
+        $this->auditService->logUpdate($event->actorId, 'user', $event->entityId);
+    }
+
+    public function onPasswordChanged(PasswordChanged $event): void
+    {
+        $this->auditService->logUpdate($event->actorId, 'user', $event->entityId);
     }
 }

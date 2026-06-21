@@ -2,9 +2,11 @@
 
 namespace App\UseCases;
 
+use App\Domain\Contracts\EventDispatcherInterface;
+use App\Domain\Events\PasswordChanged;
+use App\Domain\Events\ProfileUpdated;
 use App\Http\Requests\Profile\ChangePasswordRequest;
 use App\Http\Requests\Profile\UpdateProfileRequest;
-use App\Services\AuditService;
 use App\Services\UserService;
 use App\UseCases\DTOs\OperationResult;
 use Core\Security;
@@ -13,7 +15,7 @@ class ProfileUseCase
 {
     public function __construct(
         private UserService $userService,
-        private AuditService $auditService,
+        private EventDispatcherInterface $dispatcher,
     ) {}
 
     public function getProfile(int $userId): ?array
@@ -35,7 +37,7 @@ class ProfileUseCase
 
         $operationResult = new OperationResult((bool)$result['success'], (string)$result['message']);
         if ($operationResult->success) {
-            $this->auditService->logUpdate($req->userId, 'user', $req->userId);
+            $this->dispatcher->dispatch(new ProfileUpdated($req->userId, $req->userId));
         }
         return $operationResult;
     }
@@ -50,7 +52,7 @@ class ProfileUseCase
         $result = $this->userService->changePassword($req->userId, $req->newPassword);
         $operationResult = new OperationResult((bool)$result['success'], (string)$result['message']);
         if ($operationResult->success) {
-            $this->auditService->logUpdate($req->userId, 'user', $req->userId);
+            $this->dispatcher->dispatch(new PasswordChanged($req->userId, $req->userId));
         }
         return $operationResult;
     }

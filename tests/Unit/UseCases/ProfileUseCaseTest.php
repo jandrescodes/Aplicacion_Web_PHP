@@ -2,9 +2,11 @@
 
 namespace Tests\Unit\UseCases;
 
+use App\Domain\Contracts\EventDispatcherInterface;
+use App\Domain\Events\PasswordChanged;
+use App\Domain\Events\ProfileUpdated;
 use App\Http\Requests\Profile\ChangePasswordRequest;
 use App\Http\Requests\Profile\UpdateProfileRequest;
-use App\Services\AuditService;
 use App\Services\UserService;
 use App\UseCases\DTOs\OperationResult;
 use App\UseCases\ProfileUseCase;
@@ -14,14 +16,14 @@ use PHPUnit\Framework\TestCase;
 class ProfileUseCaseTest extends TestCase
 {
     private UserService&MockObject $userService;
-    private AuditService&MockObject $audit;
+    private EventDispatcherInterface&MockObject $dispatcher;
     private ProfileUseCase $useCase;
 
     protected function setUp(): void
     {
-        $this->userService = $this->createMock(UserService::class);
-        $this->audit       = $this->createMock(AuditService::class);
-        $this->useCase     = new ProfileUseCase($this->userService, $this->audit);
+        $this->userService  = $this->createMock(UserService::class);
+        $this->dispatcher   = $this->createMock(EventDispatcherInterface::class);
+        $this->useCase      = new ProfileUseCase($this->userService, $this->dispatcher);
     }
 
     private function makeUpdateReq(int $userId = 5): UpdateProfileRequest
@@ -64,22 +66,25 @@ class ProfileUseCaseTest extends TestCase
         $this->assertSame('Correo en uso.', $result->message);
     }
 
-    public function test_updateData_calls_audit_logUpdate_on_success(): void
+    public function test_updateData_dispatches_ProfileUpdated_on_success(): void
     {
         $this->userService->method('updateProfile')->willReturn([
             'success' => true, 'message' => '', 'usuarioCambiado' => false, 'nuevoUsuario' => '',
         ]);
-        $this->audit->expects($this->once())->method('logUpdate')->with(5, 'user', 5);
+        $this->dispatcher->expects($this->once())->method('dispatch')
+            ->with($this->callback(
+                fn($e) => $e instanceof ProfileUpdated && $e->actorId === 5 && $e->entityId === 5
+            ));
 
         $this->useCase->updateData($this->makeUpdateReq(5));
     }
 
-    public function test_updateData_does_not_call_audit_on_failure(): void
+    public function test_updateData_does_not_dispatch_on_failure(): void
     {
         $this->userService->method('updateProfile')->willReturn([
             'success' => false, 'message' => '', 'usuarioCambiado' => false, 'nuevoUsuario' => '',
         ]);
-        $this->audit->expects($this->never())->method('logUpdate');
+        $this->dispatcher->expects($this->never())->method('dispatch');
 
         $this->useCase->updateData($this->makeUpdateReq(5));
     }
@@ -89,7 +94,7 @@ class ProfileUseCaseTest extends TestCase
     public function test_changePassword_returns_failure_when_current_password_is_wrong(): void
     {
         $this->userService->method('verifyCurrentPassword')->willReturn(false);
-        $this->audit->expects($this->never())->method('logUpdate');
+        $this->dispatcher->expects($this->never())->method('dispatch');
 
         $result = $this->useCase->changePassword($this->makeChangePasswordReq());
 
@@ -107,20 +112,23 @@ class ProfileUseCaseTest extends TestCase
         $this->assertTrue($result->success);
     }
 
-    public function test_changePassword_calls_audit_logUpdate_on_success(): void
+    public function test_changePassword_dispatches_PasswordChanged_on_success(): void
     {
         $this->userService->method('verifyCurrentPassword')->willReturn(true);
         $this->userService->method('changePassword')->willReturn(['success' => true, 'message' => '']);
-        $this->audit->expects($this->once())->method('logUpdate')->with(5, 'user', 5);
+        $this->dispatcher->expects($this->once())->method('dispatch')
+            ->with($this->callback(
+                fn($e) => $e instanceof PasswordChanged && $e->actorId === 5 && $e->entityId === 5
+            ));
 
         $this->useCase->changePassword($this->makeChangePasswordReq(5));
     }
 
-    public function test_changePassword_does_not_call_audit_on_failure(): void
+    public function test_changePassword_does_not_dispatch_on_failure(): void
     {
         $this->userService->method('verifyCurrentPassword')->willReturn(true);
         $this->userService->method('changePassword')->willReturn(['success' => false, 'message' => '']);
-        $this->audit->expects($this->never())->method('logUpdate');
+        $this->dispatcher->expects($this->never())->method('dispatch');
 
         $this->useCase->changePassword($this->makeChangePasswordReq(5));
     }

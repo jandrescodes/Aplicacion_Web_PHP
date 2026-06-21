@@ -7,6 +7,8 @@ use App\Domain\Events\EmployeeUpdated;
 use App\Domain\Events\PositionCreated;
 use App\Domain\Events\PositionDeleted;
 use App\Domain\Events\PositionUpdated;
+use App\Domain\Events\PasswordChanged;
+use App\Domain\Events\ProfileUpdated;
 use App\Domain\Events\UserCreated;
 use App\Domain\Events\UserDeleted;
 use App\Domain\Events\UserUpdated;
@@ -27,4 +29,7 @@ return static function (Container $container, EventDispatcherInterface $dispatch
     $dispatcher->listen(UserCreated::class, [$listener, 'onUserCreated']);
     $dispatcher->listen(UserUpdated::class, [$listener, 'onUserUpdated']);
     $dispatcher->listen(UserDeleted::class, [$listener, 'onUserDeleted']);
+
+    $dispatcher->listen(ProfileUpdated::class, [$listener, 'onProfileUpdated']);
+    $dispatcher->listen(PasswordChanged::class, [$listener, 'onPasswordChanged']);
 };
