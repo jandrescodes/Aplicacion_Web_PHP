@@ -2,23 +2,22 @@
 
 namespace App\UseCases;
 
+use App\Domain\Contracts\EventDispatcherInterface;
+use App\Domain\Events\PositionCreated;
+use App\Domain\Events\PositionDeleted;
+use App\Domain\Events\PositionUpdated;
 use App\Domain\Models\Position;
 use App\Http\Requests\Positions\StorePositionRequest;
 use App\Http\Requests\Positions\UpdatePositionRequest;
-use App\Services\AuditService;
 use App\Services\PositionService;
 use App\UseCases\DTOs\OperationResult;
 
 class PositionUseCase
 {
-    private PositionService $positionService;
-    private AuditService $auditService;
-
-    public function __construct(PositionService $positionService, AuditService $auditService)
-    {
-        $this->positionService = $positionService;
-        $this->auditService    = $auditService;
-    }
+    public function __construct(
+        private PositionService $positionService,
+        private EventDispatcherInterface $dispatcher,
+    ) {}
 
     public function listPositions(): array
     {
@@ -39,7 +38,7 @@ class PositionUseCase
             (string)($result['message'] ?? '')
         );
         if ($operationResult->success) {
-            $this->auditService->logCreate($actorId, 'position', null);
+            $this->dispatcher->dispatch(new PositionCreated($actorId));
         }
         return $operationResult;
     }
@@ -52,7 +51,7 @@ class PositionUseCase
             (string)($result['message'] ?? '')
         );
         if ($operationResult->success) {
-            $this->auditService->logUpdate($actorId, 'position', $req->id);
+            $this->dispatcher->dispatch(new PositionUpdated($actorId, $req->id));
         }
         return $operationResult;
     }
@@ -61,7 +60,7 @@ class PositionUseCase
     {
         $deleted = $this->positionService->deletePosition($id);
         if ($deleted) {
-            $this->auditService->logDelete($actorId, 'position', $id);
+            $this->dispatcher->dispatch(new PositionDeleted($actorId, $id));
         }
         return $deleted;
     }

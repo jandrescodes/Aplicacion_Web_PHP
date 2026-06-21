@@ -2,10 +2,13 @@
 
 namespace Tests\Unit\UseCases;
 
+use App\Domain\Contracts\EventDispatcherInterface;
+use App\Domain\Events\PositionCreated;
+use App\Domain\Events\PositionDeleted;
+use App\Domain\Events\PositionUpdated;
 use App\Domain\Models\Position;
 use App\Http\Requests\Positions\StorePositionRequest;
 use App\Http\Requests\Positions\UpdatePositionRequest;
-use App\Services\AuditService;
 use App\Services\PositionService;
 use App\UseCases\DTOs\OperationResult;
 use App\UseCases\PositionUseCase;
@@ -15,14 +18,14 @@ use PHPUnit\Framework\TestCase;
 class PositionUseCaseTest extends TestCase
 {
     private PositionService&MockObject $service;
-    private AuditService&MockObject $audit;
+    private EventDispatcherInterface&MockObject $dispatcher;
     private PositionUseCase $useCase;
 
     protected function setUp(): void
     {
-        $this->service = $this->createMock(PositionService::class);
-        $this->audit   = $this->createMock(AuditService::class);
-        $this->useCase = new PositionUseCase($this->service, $this->audit);
+        $this->service    = $this->createMock(PositionService::class);
+        $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->useCase    = new PositionUseCase($this->service, $this->dispatcher);
     }
 
     private function makePosition(int $id = 1, string $nombre = 'Gerente'): Position
@@ -144,47 +147,56 @@ class PositionUseCaseTest extends TestCase
         $this->assertFalse($this->useCase->deletePosition(99));
     }
 
-    // --- auditoría ---
+    // --- eventos ---
 
-    public function test_createPosition_calls_audit_logCreate_on_success(): void
+    public function test_createPosition_dispatches_PositionCreated_on_success(): void
     {
         $this->service->method('createPosition')->willReturn(['success' => true, 'message' => '']);
-        $this->audit->expects($this->once())->method('logCreate')->with(7, 'position', null);
+        $this->dispatcher->expects($this->once())->method('dispatch')
+            ->with($this->callback(
+                fn($e) => $e instanceof PositionCreated && $e->actorId === 7 && $e->entityId === null
+            ));
 
         $req = StorePositionRequest::fromArray(['nombredelpuesto' => 'Director']);
         $this->useCase->createPosition($req, 7);
     }
 
-    public function test_createPosition_does_not_call_audit_on_failure(): void
+    public function test_createPosition_does_not_dispatch_on_failure(): void
     {
         $this->service->method('createPosition')->willReturn(['success' => false, 'message' => '']);
-        $this->audit->expects($this->never())->method('logCreate');
+        $this->dispatcher->expects($this->never())->method('dispatch');
 
         $req = StorePositionRequest::fromArray(['nombredelpuesto' => 'Director']);
         $this->useCase->createPosition($req, 7);
     }
 
-    public function test_updatePosition_calls_audit_logUpdate_on_success(): void
+    public function test_updatePosition_dispatches_PositionUpdated_on_success(): void
     {
         $this->service->method('updatePosition')->willReturn(['success' => true, 'message' => '']);
-        $this->audit->expects($this->once())->method('logUpdate')->with(7, 'position', 4);
+        $this->dispatcher->expects($this->once())->method('dispatch')
+            ->with($this->callback(
+                fn($e) => $e instanceof PositionUpdated && $e->actorId === 7 && $e->entityId === 4
+            ));
 
         $req = UpdatePositionRequest::fromArray(['txtID' => '4', 'nombredelpuesto' => 'Supervisor']);
         $this->useCase->updatePosition($req, 7);
     }
 
-    public function test_deletePosition_calls_audit_logDelete_on_success(): void
+    public function test_deletePosition_dispatches_PositionDeleted_on_success(): void
     {
         $this->service->method('deletePosition')->willReturn(true);
-        $this->audit->expects($this->once())->method('logDelete')->with(7, 'position', 5);
+        $this->dispatcher->expects($this->once())->method('dispatch')
+            ->with($this->callback(
+                fn($e) => $e instanceof PositionDeleted && $e->actorId === 7 && $e->entityId === 5
+            ));
 
         $this->useCase->deletePosition(5, 7);
     }
 
-    public function test_deletePosition_does_not_call_audit_on_failure(): void
+    public function test_deletePosition_does_not_dispatch_on_failure(): void
     {
         $this->service->method('deletePosition')->willReturn(false);
-        $this->audit->expects($this->never())->method('logDelete');
+        $this->dispatcher->expects($this->never())->method('dispatch');
 
         $this->useCase->deletePosition(5, 7);
     }

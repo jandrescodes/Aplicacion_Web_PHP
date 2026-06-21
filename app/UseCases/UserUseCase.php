@@ -2,23 +2,22 @@
 
 namespace App\UseCases;
 
+use App\Domain\Contracts\EventDispatcherInterface;
+use App\Domain\Events\UserCreated;
+use App\Domain\Events\UserDeleted;
+use App\Domain\Events\UserUpdated;
 use App\Domain\Models\User;
 use App\Http\Requests\Users\StoreUserRequest;
 use App\Http\Requests\Users\UpdateUserRequest;
-use App\Services\AuditService;
 use App\Services\UserService;
 use App\UseCases\DTOs\OperationResult;
 
 class UserUseCase
 {
-    private UserService $userService;
-    private AuditService $auditService;
-
-    public function __construct(UserService $userService, AuditService $auditService)
-    {
-        $this->userService  = $userService;
-        $this->auditService = $auditService;
-    }
+    public function __construct(
+        private UserService $userService,
+        private EventDispatcherInterface $dispatcher,
+    ) {}
 
     public function listUsers(): array
     {
@@ -43,7 +42,7 @@ class UserUseCase
             (string)($result['message'] ?? '')
         );
         if ($operationResult->success) {
-            $this->auditService->logCreate($actorId, 'user', null);
+            $this->dispatcher->dispatch(new UserCreated($actorId));
         }
         return $operationResult;
     }
@@ -60,7 +59,7 @@ class UserUseCase
             (string)($result['message'] ?? '')
         );
         if ($operationResult->success) {
-            $this->auditService->logUpdate($actorId, 'user', $req->id);
+            $this->dispatcher->dispatch(new UserUpdated($actorId, $req->id));
         }
         return $operationResult;
     }
@@ -69,7 +68,7 @@ class UserUseCase
     {
         $deleted = $this->userService->deleteUser($id);
         if ($deleted) {
-            $this->auditService->logDelete($actorId, 'user', $id);
+            $this->dispatcher->dispatch(new UserDeleted($actorId, $id));
         }
         return $deleted;
     }
