@@ -2,24 +2,24 @@
 
 namespace App\UseCases;
 
+use App\Domain\Contracts\EventDispatcherInterface;
+use App\Domain\Events\EmployeeCreated;
+use App\Domain\Events\EmployeeDeleted;
+use App\Domain\Events\EmployeeUpdated;
 use App\Domain\Models\Employee;
 use App\Domain\Models\Position;
 use App\Http\Requests\Employees\StoreEmployeeRequest;
 use App\Http\Requests\Employees\UpdateEmployeeRequest;
-use App\Services\AuditService;
 use App\Services\EmployeeService;
 use App\UseCases\DTOs\OperationResult;
 
 class EmployeeUseCase
 {
-    private EmployeeService $employeeService;
-    private AuditService $auditService;
+    public function __construct(
+        private EmployeeService $employeeService,
+        private EventDispatcherInterface $dispatcher,
+    ) {}
 
-    public function __construct(EmployeeService $employeeService, AuditService $auditService)
-    {
-        $this->employeeService = $employeeService;
-        $this->auditService    = $auditService;
-    }
 
     public function listEmployees(): array
     {
@@ -59,7 +59,7 @@ class EmployeeUseCase
             (string)($result['message'] ?? '')
         );
         if ($operationResult->success) {
-            $this->auditService->logCreate($actorId, 'employee', null);
+            $this->dispatcher->dispatch(new EmployeeCreated($actorId));
         }
         return $operationResult;
     }
@@ -80,7 +80,7 @@ class EmployeeUseCase
             (string)($result['message'] ?? '')
         );
         if ($operationResult->success) {
-            $this->auditService->logUpdate($actorId, 'employee', $req->id);
+            $this->dispatcher->dispatch(new EmployeeUpdated($actorId, $req->id));
         }
         return $operationResult;
     }
@@ -89,7 +89,7 @@ class EmployeeUseCase
     {
         $deleted = $this->employeeService->deleteEmployee($id, $baseDirectory);
         if ($deleted) {
-            $this->auditService->logDelete($actorId, 'employee', $id);
+            $this->dispatcher->dispatch(new EmployeeDeleted($actorId, $id));
         }
         return $deleted;
     }

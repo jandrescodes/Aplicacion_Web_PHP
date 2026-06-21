@@ -2,11 +2,14 @@
 
 namespace Tests\Unit\UseCases;
 
+use App\Domain\Contracts\EventDispatcherInterface;
+use App\Domain\Events\EmployeeCreated;
+use App\Domain\Events\EmployeeDeleted;
+use App\Domain\Events\EmployeeUpdated;
 use App\Domain\Models\Employee;
 use App\Domain\Models\Position;
 use App\Http\Requests\Employees\StoreEmployeeRequest;
 use App\Http\Requests\Employees\UpdateEmployeeRequest;
-use App\Services\AuditService;
 use App\Services\EmployeeService;
 use App\UseCases\EmployeeUseCase;
 use App\UseCases\DTOs\OperationResult;
@@ -16,14 +19,14 @@ use PHPUnit\Framework\TestCase;
 class EmployeeUseCaseTest extends TestCase
 {
     private EmployeeService&MockObject $service;
-    private AuditService&MockObject $audit;
+    private EventDispatcherInterface&MockObject $dispatcher;
     private EmployeeUseCase $useCase;
 
     protected function setUp(): void
     {
-        $this->service = $this->createMock(EmployeeService::class);
-        $this->audit   = $this->createMock(AuditService::class);
-        $this->useCase = new EmployeeUseCase($this->service, $this->audit);
+        $this->service    = $this->createMock(EmployeeService::class);
+        $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
+        $this->useCase    = new EmployeeUseCase($this->service, $this->dispatcher);
     }
 
     private function makeEmployee(array $overrides = []): Employee
@@ -205,12 +208,16 @@ class EmployeeUseCaseTest extends TestCase
         $this->assertFalse($this->useCase->deleteEmployee(0, '/tmp'));
     }
 
-    // --- auditoría ---
+    // --- eventos ---
 
-    public function test_createEmployee_calls_audit_logCreate_on_success(): void
+    public function test_createEmployee_dispatches_EmployeeCreated_on_success(): void
     {
         $this->service->method('createEmployee')->willReturn(['success' => true, 'message' => '']);
-        $this->audit->expects($this->once())->method('logCreate')->with(2, 'employee', null);
+        $this->dispatcher->expects($this->once())
+            ->method('dispatch')
+            ->with($this->callback(
+                fn($e) => $e instanceof EmployeeCreated && $e->actorId === 2
+            ));
 
         $req = StoreEmployeeRequest::fromArray([
             'primernombre' => 'Ana', 'primerapellido' => 'Gómez', 'segundoapellido' => 'Ruiz',
@@ -219,10 +226,10 @@ class EmployeeUseCaseTest extends TestCase
         $this->useCase->createEmployee($req, [], '/tmp', 2);
     }
 
-    public function test_createEmployee_does_not_call_audit_on_failure(): void
+    public function test_createEmployee_does_not_dispatch_on_failure(): void
     {
         $this->service->method('createEmployee')->willReturn(['success' => false, 'message' => '']);
-        $this->audit->expects($this->never())->method('logCreate');
+        $this->dispatcher->expects($this->never())->method('dispatch');
 
         $req = StoreEmployeeRequest::fromArray([
             'primernombre' => 'Ana', 'primerapellido' => 'Gómez', 'segundoapellido' => 'Ruiz',
@@ -231,10 +238,14 @@ class EmployeeUseCaseTest extends TestCase
         $this->useCase->createEmployee($req, [], '/tmp', 2);
     }
 
-    public function test_updateEmployee_calls_audit_logUpdate_on_success(): void
+    public function test_updateEmployee_dispatches_EmployeeUpdated_on_success(): void
     {
         $this->service->method('updateEmployee')->willReturn(['success' => true, 'message' => '']);
-        $this->audit->expects($this->once())->method('logUpdate')->with(2, 'employee', 5);
+        $this->dispatcher->expects($this->once())
+            ->method('dispatch')
+            ->with($this->callback(
+                fn($e) => $e instanceof EmployeeUpdated && $e->actorId === 2 && $e->entityId === 5
+            ));
 
         $req = UpdateEmployeeRequest::fromArray([
             'txtID' => '5', 'primernombre' => 'Juan', 'primerapellido' => 'Pérez',
@@ -243,18 +254,22 @@ class EmployeeUseCaseTest extends TestCase
         $this->useCase->updateEmployee($req, [], '/tmp', 2);
     }
 
-    public function test_deleteEmployee_calls_audit_logDelete_on_success(): void
+    public function test_deleteEmployee_dispatches_EmployeeDeleted_on_success(): void
     {
         $this->service->method('deleteEmployee')->willReturn(true);
-        $this->audit->expects($this->once())->method('logDelete')->with(2, 'employee', 3);
+        $this->dispatcher->expects($this->once())
+            ->method('dispatch')
+            ->with($this->callback(
+                fn($e) => $e instanceof EmployeeDeleted && $e->actorId === 2 && $e->entityId === 3
+            ));
 
         $this->useCase->deleteEmployee(3, '/tmp', 2);
     }
 
-    public function test_deleteEmployee_does_not_call_audit_on_failure(): void
+    public function test_deleteEmployee_does_not_dispatch_on_failure(): void
     {
         $this->service->method('deleteEmployee')->willReturn(false);
-        $this->audit->expects($this->never())->method('logDelete');
+        $this->dispatcher->expects($this->never())->method('dispatch');
 
         $this->useCase->deleteEmployee(3, '/tmp', 2);
     }

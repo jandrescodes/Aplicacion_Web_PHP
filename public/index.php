@@ -52,6 +52,11 @@ try {
         $containerLoader($container);
     }
 
+    $eventsRegistrar = require __DIR__ . '/../config/events.php';
+    if (is_callable($eventsRegistrar)) {
+        $eventsRegistrar($container, $container->resolve(\App\Domain\Contracts\EventDispatcherInterface::class));
+    }
+
     $router = new Router($projectRoot, 'public', $publicBaseUrl);
     $routesRegistrar = require __DIR__ . '/../routes/web.php';
     if (is_callable($routesRegistrar)) {
