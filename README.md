@@ -1,5 +1,4 @@
 <div align="center">
-  <img src="public/img/deadpool.ico" width="80" alt="Logo">
   <h1>Sistema de Gestión Empresarial PHP</h1>
   <p>Aplicación web construida con arquitectura por capas en PHP, enfocada en la mantenibilidad, escalabilidad y una experiencia de usuario moderna.</p>
 
@@ -15,6 +14,42 @@
 ## Descripción
 
 Sistema integral para la gestión de recursos humanos: control de **empleados**, **puestos de trabajo** y **usuarios del sistema**, con generación de cartas de recomendación en PDF y registro de auditoría de acciones.
+
+> **Origen del proyecto:** nació como proyecto académico de Ingeniería de Sistemas. Se mantiene y evoluciona activamente aplicando prácticas de arquitectura por capas, testing y CI — abierto a sugerencias y contribuciones.
+
+## Capturas de pantalla
+
+### Dashboard
+
+Métricas de conteo por módulo y distribución de empleados por puesto al iniciar sesión.
+
+![Dashboard](docs/screenshots/dashboard.png)
+
+---
+
+### Listado de empleados
+
+Tabla con búsqueda, paginación y exportación de reportes (PDF, Excel, CSV, impresión) vía DataTables.
+
+![Listado de empleados](docs/screenshots/empleados-listado.png)
+
+---
+
+### Nuevo empleado
+
+Formulario de registro con carga de foto y CV.
+
+![Formulario de nuevo empleado](docs/screenshots/empleados-nuevo.png)
+
+---
+
+### Carta de recomendación (PDF)
+
+Generada con dompdf a partir de los datos del empleado, se abre inline en el navegador.
+
+<div align="center">
+  <img src="docs/screenshots/carta-recomendacion.png" alt="Carta de recomendación" width="500">
+</div>
 
 ## Arquitectura
 
@@ -133,6 +168,25 @@ mysql -u root -p your_db < database/seeders.sql
 
 Apuntar el servidor web a `public/` o acceder vía `http://localhost/Aplicacion_Web_PHP/public/`.
 
+### Variables de entorno
+
+Definidas en `.env` (ver `.env.example`):
+
+| Variable               | Requerida | Descripción                                                  |
+| ---------------------- | :-------: | ------------------------------------------------------------ |
+| `APP_ENV`              |     ✔     | `local` o `production` — controla el nivel mínimo de logging |
+| `APP_URL`              |     ✔     | URL base de la aplicación (validada en el bootstrap)         |
+| `SESSION_LIFETIME`     |           | Duración de la sesión PHP en minutos                         |
+| `REMEMBER_ME_ENABLED`  |           | Habilita/deshabilita la cookie "Recuérdame" (`true`/`false`) |
+| `REMEMBER_ME_LIFETIME` |           | Duración del token "Recuérdame" en días                      |
+| `DB_HOST`              |     ✔     | Host de MySQL/MariaDB                                        |
+| `DB_PORT`              |     ✔     | Puerto de la base de datos                                   |
+| `DB_DATABASE`          |     ✔     | Nombre de la base de datos                                   |
+| `DB_USERNAME`          |     ✔     | Usuario de la base de datos                                  |
+| `DB_PASSWORD`          |           | Contraseña de la base de datos                               |
+
+Las variables marcadas como requeridas son validadas por `vlucas/phpdotenv` en el arranque — la aplicación no inicia si faltan.
+
 ## Logs
 
 Los logs de la aplicación se escriben en `storage/logs/app.log` con rotación diaria (14 archivos).
@@ -153,6 +207,14 @@ Tablas: `tbl-empleados`, `tbl-puestos`, `tbl-usuarios` (los guiones requieren co
 `audit_log` es append-only (`id`, `user_id` NULL, `action` ENUM, `entity` ENUM, `entity_id` NULL, `created_at`); `user_id` sin FK para sobrevivir borrados de usuario.  
 La columna `Correo` tiene restricción `UNIQUE` — la unicidad se valida explícitamente en `UserService` antes del INSERT/UPDATE para dar mensajes de error claros.  
 Archivos subidos en `public/storage/uploads/`. Los assets por defecto (`user-default.jpg`, `cv_default.pdf`) están protegidos contra borrado accidental.
+
+## Cómo contribuir
+
+Las contribuciones son bienvenidas. Antes de abrir un PR, revisa [CONTRIBUTING.md](CONTRIBUTING.md) para la guía de entorno, convenciones de commits y checklist de tests.
+
+## Licencia
+
+Distribuido bajo licencia [MIT](LICENSE).
 
 ---
 
