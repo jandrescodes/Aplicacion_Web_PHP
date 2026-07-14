@@ -41,15 +41,7 @@ Actúa como desarrollador PHP Senior especializado en arquitectura por capas
 y patrones de diseño (Repository, UseCase, Service, DI Container).
 
 [Contexto]
-Proyecto: Sistema de Gestión de Empleados — PHP 8.x custom, sin framework.
-Stack: Bootstrap 5, FontAwesome 6, DataTables, SweetAlert2, MySQL (PDO), JavaScript ES6+.
-Arquitectura: Controller → UseCase → Service → Repository. Framework interno en core/.
-DI Container: core/Container.php — resuelve dependencias por reflexión; bindings en config/container.php.
-Request DTOs: app/Http/Requests/ — construidos en Controllers desde $_POST; $_POST nunca cruza esta capa.
-Variables de entorno: vlucas/phpdotenv carga el .env en el bootstrap; leer siempre con $_ENV['KEY'].
-Logging: Config\AppLogger::getInstance() devuelve el logger Monolog; logs en storage/logs/app.log.
-PDF: dompdf/dompdf ^3.1 vía Composer. Usar View::capture($view, $data) para obtener el HTML y pasarlo a $dompdf->loadHtml(). CSS embebido con file_get_contents() dentro de <style> — no usar <link> (dompdf no lo resuelve). stream($filename, ['Attachment' => false]) para abrir inline.
-URL base: http://localhost/Aplicacion_Web_PHP/public/
+(Arquitectura, stack y convenciones ya están en CLAUDE.md — cárgalo antes de usar esta plantilla)
 Módulo activo: _______________
 
 [Tarea]
@@ -87,15 +79,7 @@ Actúa como desarrollador PHP Senior especializado en arquitectura por capas
 y patrones de diseño (Repository, UseCase, Service, DI Container).
 
 [Contexto]
-Proyecto: Sistema de Gestión de Empleados — PHP 8.x custom, sin framework.
-Stack: Bootstrap 5, FontAwesome 6, DataTables, SweetAlert2, MySQL (PDO), JavaScript ES6+.
-Arquitectura: Controller → UseCase → Service → Repository. Framework interno en core/.
-DI Container en core/Container.php; bindings en config/container.php.
-Request DTOs en app/Http/Requests/{Modulo}/; Domain Models en app/Domain/Models/.
-Repository Interfaces en app/Domain/Contracts/; OperationResult en app/UseCases/DTOs/.
-Variables de entorno: vlucas/phpdotenv — leer siempre con $_ENV['KEY'], nunca con Env::get().
-Logging: Config\AppLogger::getInstance() (Monolog) — logs en storage/logs/app.log.
-PDF: dompdf/dompdf ^3.1 disponible. View::capture($view, $data) → string HTML → $dompdf->loadHtml(). CSS vía file_get_contents() embebido en <style> (no <link>). stream($file, ['Attachment' => false]) para inline.
+(Arquitectura, stack y convenciones ya están en CLAUDE.md — cárgalo antes de usar esta plantilla)
 Módulo activo: [nombre del módulo — ej: empleados, puestos, usuarios]
 
 Archivos relevantes del módulo:
@@ -209,9 +193,7 @@ Actúa como Tech Lead PHP con experiencia en code review de sistemas por capas,
 seguridad web y patrones de diseño.
 
 [Contexto]
-Proyecto: Sistema de Gestión de Empleados — PHP 8.x custom.
-Arquitectura: Controller → Request DTO → UseCase (OperationResult) → Service → Repository.
-DI Container en core/Container.php; Domain Models en app/Domain/Models/; Contracts en app/Domain/Contracts/.
+(Arquitectura ya está en CLAUDE.md — cárgalo antes de usar esta plantilla)
 Rama revisada: feature/[nombre]
 Requerimiento implementado: [nombre del requerimiento]
 
@@ -255,15 +237,8 @@ Actúa como arquitecto de software PHP con experiencia en arquitectura por capas
 y PHP sin framework.
 
 [Contexto]
-Proyecto: Sistema de Gestión de Empleados — PHP 8.x custom, sin framework.
-Estado actual: módulos implementados — dashboard (landing en GET /), empleados, puestos, usuarios, auth, perfil de usuario, auditoría (GET /auditoria, admin-only).
-BD: tbl-empleados, tbl-puestos, tbl-usuarios (ver database/schema.sql). tbl-usuarios incluye is_admin TINYINT(1) para control de acceso por rol — no usar el nombre de usuario para verificar permisos.
-Arquitectura: Controller → Request DTO → UseCase (OperationResult) → Service → Repository.
-Framework interno en core/ (Router, View, Flash, Security, ErrorPage, Container).
-Variables de entorno: vlucas/phpdotenv — leer con $_ENV['KEY']. Logging: Config\AppLogger::getInstance().
-DI Container: core/Container.php resuelve por reflexión; bindings en config/container.php.
-Domain Models (POPOs) en app/Domain/Models/; Contracts en app/Domain/Contracts/.
-Request DTOs en app/Http/Requests/; OperationResult en app/UseCases/DTOs/.
+(Arquitectura, capas y stack ya están en CLAUDE.md — cárgalo antes de usar esta plantilla)
+Estado actual: módulos implementados — dashboard, empleados, puestos, usuarios, auth, perfil, auditoría.
 
 [Tarea]
 Necesito decidir: [describe la decisión técnica]
@@ -298,9 +273,8 @@ Actúa como desarrollador PHP Senior especializado en testing con PHPUnit 10.x,
 mocks de interfaces y arquitectura por capas.
 
 [Contexto]
-Proyecto: Sistema de Gestión de Empleados — PHP 8.x custom, sin framework.
+(Arquitectura ya está en CLAUDE.md — cárgalo antes de usar esta plantilla)
 Testing: PHPUnit 10.5 — suite Unit en tests/Unit/, namespace Tests\ mapeado por PSR-4.
-Arquitectura: Controller → Request DTO → UseCase (OperationResult) → Service → Repository.
 Estrategia por capa:
 - Domain Models (app/Domain/Models/): unit puro — fromRow() / toArray(), sin mocks.
 - Request DTOs (app/Http/Requests/): unit puro — fromArray() + validate(), sin mocks.
@@ -330,76 +304,6 @@ Escribe los tests PHPUnit para [clase/método específico].
 2. Código completo del test class
 3. Resultado esperado de vendor/bin/phpunit (tests, assertions, tiempo)
 ```
-
----
-
-## Ejemplo real — Nuevo módulo completo (Puestos)
-
-> Ejemplo de cómo se ve un prompt de feature bien estructurado para este proyecto.
-> El módulo de Empleados ya está implementado — úsalo como referencia de calidad.
-
-```
-[Rol]
-Actúa como desarrollador PHP Senior especializado en arquitectura por capas
-y patrones Repository/UseCase con PHP puro.
-
-[Contexto]
-Proyecto: Sistema de Gestión de Empleados — PHP 8.x custom, sin framework.
-Stack: Bootstrap 5, FontAwesome 6, DataTables, SweetAlert2, MySQL (PDO), JavaScript ES6+.
-Arquitectura: Controller → Request DTO → UseCase → Service → Repository. Framework en core/.
-DI Container en core/Container.php; bindings en config/container.php.
-Variables de entorno: vlucas/phpdotenv — leer con $_ENV['KEY']. Logging: Config\AppLogger::getInstance().
-Módulo: puestos (ya implementado — úsalo como referencia si necesitas revisar el patrón).
-
-BD relevante:
-- `tbl-puestos` (ID, Nombredelpuesto)
-- `tbl-empleados` (ID, ..., Idpuesto) ← FK a tbl-puestos
-
-Módulo de referencia: empleados
-(EmployeesController / EmployeeUseCase / EmployeeService / EmployeeRepository)
-
-[Tarea]
-Implementar CRUD completo de puestos.
-
-Criterios de aceptación:
-- Listado con DataTables (datos desde PHP, sin AJAX en carga inicial)
-- Crear puesto: solo campo Nombredelpuesto (requerido, máx 255 chars)
-- Editar puesto
-- Eliminar puesto vía AJAX (Fetch + SweetAlert confirm + toast de resultado)
-  — bloquear si el puesto tiene empleados asignados (FK constraint)
-- Solo usuarios logueados pueden acceder ($this->requireLogin())
-
-[Restricciones]
-- Seguir EmployeesController como referencia exacta de estructura
-- Request DTOs: StorePositionRequest y UpdatePositionRequest en app/Http/Requests/Positions/
-- UseCase recibe DTOs tipados y devuelve OperationResult
-- Service valida negocio: nombre no vacío, no duplicado en BD
-- Repository implementa PositionRepositoryInterface; registrar binding en config/container.php
-- Domain Model Position con fromRow() / toArray()
-- CSRF en todos los POST: $this->hasValidCsrfToken($_POST)
-- destroy(): $this->isAjaxRequest() → JSON; sino → Flash + redirect
-- SQL con bindParam() y PDO::PARAM_INT / PDO::PARAM_STR
-- Tablas con guión entre backticks
-
-[Formato de salida]
-Devuelve en este orden:
-1. Lista de archivos a crear/modificar
-2. app/Domain/Models/Position.php
-3. app/Domain/Contracts/PositionRepositoryInterface.php
-4. app/Repositories/PositionRepository.php
-5. app/Services/PositionService.php
-6. app/UseCases/PositionUseCase.php
-7. app/Http/Requests/Positions/StorePositionRequest.php
-8. app/Http/Requests/Positions/UpdatePositionRequest.php
-9. app/Http/Controllers/PositionsController.php
-10. resources/views/positions/index.php, create.php, edit.php
-11. public/js/positions.js (AJAX delete)
-12. Líneas para routes/web.php
-13. Binding para config/container.php
-14. Checklist de testing manual
-```
-
----
 
 _Última actualización: 2026-06-21 — EventDispatcher implementado: UseCases emiten eventos de dominio (POPOs en `app/Domain/Events/`); `AuditListener` los traduce a `AuditService`; registro en `config/events.php`; `EventDispatcher` singleton en `core/`. `AuditService` ya no se inyecta directamente en UseCases de negocio._
 _Mantener sincronizado con CLAUDE.md al inicio de cada sesión._

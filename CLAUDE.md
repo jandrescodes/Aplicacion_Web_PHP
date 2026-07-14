@@ -81,21 +81,33 @@ Controller POST method:
 
 **Intelephense false positives:** Variables like `$public_base`, `$nombreUsuario`, `$flash`, `$csrfToken` in layout views, and `$nombreCompleto`, `$puesto`, `$fechaIngreso`, `$diferencia`, `$fechaActual` in `recommendation_letter.php`, will show as "undefined" in the IDE because they come from `extract($data)` inside `View::render()`. These are not real errors.
 
-## Remember Me (cookie persistence)
+## Security
+
+**CSRF Protection:**
+
+- **Forms**: include a hidden `csrf_token` field; use `Security::getCsrfToken()` to generate it
+- **AJAX**: read the token from the `<meta name="csrf-token">` tag in the layout and send it as `X-CSRF-Token` header; validate server-side with `Security::isValidCsrfToken()`
+- All mutating routes validate CSRF before processing; comparison uses `hash_equals()`
+
+**Remember Me (cookie persistence):**
 
 - Enabled by default; controlled by `REMEMBER_ME_ENABLED=true` in `.env`
 - Cookie lifetime: `REMEMBER_ME_LIFETIME=30` (days)
 - **Cookie format**: `{userId}:{plainToken}` — the plain token is never stored; only its `sha256` hash goes into the DB column `remember_token` on `tbl-usuarios`
-- **Rotation**: every successful cookie-based login issues a new token and overwrites the old one (token rotation)
+- **Rotation**: every successful cookie-based login issues a new token and overwrites the old one (token rotation); each cookie-authenticated visit resets the 30-day expiration (sliding session — intentional)
 - **Logout**: `AuthUseCase::handleLogout()` revokes the DB token and expires the cookie; `AuthController` calls this via `$this->authUseCase->handleLogout()`
-- `Security::setRememberCookie()` / `clearRememberCookie()` / `getRememberCookie()` in `core/Security.php` manage the raw cookie with `HttpOnly`, `SameSite=Lax`, and `Secure` (auto-detected)
+- `Security::setRememberCookie()` / `clearRememberCookie()` / `getRememberCookie()` in `core/Security.php` manage the raw cookie with `HttpOnly`, `SameSite=Lax`, and `Secure` (auto-detected from `$_SERVER['HTTPS']`)
 - Schema columns added to `tbl-usuarios`: `remember_token VARCHAR(64) NULL`, `remember_token_expires DATETIME NULL`
 
-## CSRF Protection
+**Password hashing:**
 
-- **Forms**: include a hidden `csrf_token` field; use `Security::getCsrfToken()` to generate it
-- **AJAX**: read the token from the `<meta name="csrf-token">` tag in the layout and send it as `X-CSRF-Token` header; validate server-side with `Security::isValidCsrfToken()`
-- All mutating routes validate CSRF before processing
+- `AuthService::authenticate()` auto-migrates plain-text passwords to bcrypt on the first successful login — do not add migration logic elsewhere
+- `UserService` always calls `password_hash()` on create and update
+- The seeder (`database/seeders.sql`) stores bcrypt hashes; comments above the INSERT lines show the plain-text values for local dev reference
+
+**Security headers:** `Security::sendSecurityHeaders()` sends `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, and a `Permissions-Policy` restricting geolocation/microphone/camera.
+
+**Deployment note:** `Secure` cookie/session flags are derived from `$_SERVER['HTTPS']`. If ever deployed behind a reverse proxy that terminates TLS (nginx, load balancer) without forwarding that variable, cookies would silently lose the `Secure` flag — not an issue on the current direct XAMPP deployment.
 
 ## PDF Generation
 
@@ -156,10 +168,6 @@ File uploads land in `public/storage/uploads/`. Default assets (`user-default.jp
 - **Password change** (`perfil-contrasena`): separate form, separate route. `ProfileUseCase::changePassword()` calls `UserService::verifyCurrentPassword()` first, then `UserService::changePassword()` which calls `UserRepository::updatePasswordHash()`. The data-update path never touches the password column.
 - `ProfileController` reads `$_SESSION['user_id']` (never from `$_POST`) so a user can only edit their own profile.
 - **Two forms, two routes** — never mix them. The earlier single-form + hidden-fields approach caused duplicate POST keys where PHP used the last value, silently discarding typed input.
-
-## Password hashing
-
-`AuthService::authenticate()` auto-migrates plain-text passwords to bcrypt on the first successful login — do not add migration logic elsewhere. `UserService` always calls `password_hash()` on create and update. The seeder (`database/seeders.sql`) stores bcrypt hashes; comments above the INSERT lines show the plain-text values for local dev reference.
 
 ## Dashboard
 
