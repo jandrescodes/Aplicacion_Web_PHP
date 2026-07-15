@@ -5,7 +5,7 @@
 [![PHP Version](https://img.shields.io/badge/php-%5E8.0-blue.svg)](https://www.php.net/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Architecture](https://img.shields.io/badge/architecture-Layered-orange.svg)](#arquitectura)
-[![Tests](https://github.com/Jandres25/Aplicacion_Web_PHP/actions/workflows/tests.yml/badge.svg)](https://github.com/Jandres25/Aplicacion_Web_PHP/actions/workflows/tests.yml)
+[![Tests](https://github.com/jandrescodes/Aplicacion_Web_PHP/actions/workflows/tests.yml/badge.svg)](https://github.com/jandrescodes/Aplicacion_Web_PHP/actions/workflows/tests.yml)
 
 </div>
 
