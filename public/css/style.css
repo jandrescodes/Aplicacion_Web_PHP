@@ -1,35 +1,52 @@
 /* --- ESTILOS ORIGINALES DEL LOGIN --- */
+:root {
+    --login-bg: #222222;
+    --login-card-bg: #ffffff;
+    --login-text: #212529;
+    --login-text-muted: #6c757d;
+    --shape-square-1: #303030;
+    --shape-square-2: #757575;
+    --shape-circle: #1cd99d;
+    --shape-triangle: #f5f5f5;
+}
+
 .login-body {
-    background: #222222 !important;
-    overflow: hidden;
-    height: 100vh;
+    background: var(--login-bg) !important;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 100vh;
     width: 100vw;
 }
 
 main.container-login {
     position: relative;
     width: 100%;
-    height: 100vh;
+    min-height: 100vh;
     overflow: hidden;
     display: flex;
     justify-content: center;
-    align-items: center;
+    padding: 2rem 1rem;
 }
 
 #tarjeta {
-    -webkit-border-radius: 10px;
-    -webkit-box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-    -moz-border-shadow: 10px;
-    -moz-box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-    -o-border-radius: 10px;
-    -o-border-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    border-radius: 10px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
     font-size: 18px;
     padding: 30px;
     width: 90%;
     max-width: 450px;
-    background: white;
+    background: var(--login-card-bg);
+    color: var(--login-text);
     z-index: 2;
+    margin: auto;
+}
+
+#tarjeta .text-dark {
+    color: var(--login-text) !important;
+}
+
+#tarjeta .text-muted {
+    color: var(--login-text-muted) !important;
 }
 
 .square {
@@ -39,7 +56,7 @@ main.container-login {
     transform: translate(-50%, -50%);
     width: 50px;
     height: 50px;
-    background: linear-gradient(#303030, #757575);
+    background: linear-gradient(var(--shape-square-1), var(--shape-square-2));
     z-index: 1;
 }
 
@@ -50,7 +67,7 @@ main.container-login {
     transform: translate(-50%, -50%);
     width: 50px;
     height: 50px;
-    background: #1cd99d;
+    background: var(--shape-circle);
     border-radius: 50%;
     z-index: 1;
 }
@@ -62,7 +79,7 @@ main.container-login {
     transform: translate(-50%, -50%);
     width: 50px;
     height: 50px;
-    background: #f5f5f5;
+    background: var(--shape-triangle);
     clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
     -webkit-clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
     z-index: 1;

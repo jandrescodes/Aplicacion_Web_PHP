@@ -5,27 +5,40 @@
 $(document).ready(function () {
     // --- ANIMACIONES ORIGINALES DEL LOGIN ---
     if ($(".login-form").length > 0 || $("#tarjeta").length > 0) {
-        function randomValues() {
-            anime({
-                targets: '.square, .circle, .triangle',
-                translateX: function () {
-                    return anime.random(-window.innerWidth / 2, window.innerWidth / 2);
-                },
-                translateY: function () {
-                    return anime.random(-window.innerHeight / 2, window.innerHeight / 2);
-                },
-                rotate: function () {
-                    return anime.random(0, 360);
-                },
-                scale: function () {
-                    return anime.random(.2, 1.5);
-                },
-                duration: 1000,
-                easing: 'easeInOutQuad',
-                complete: randomValues,
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        if (!prefersReducedMotion) {
+            // Animación continua: las figuras se desplazan y se re-encadenan
+            function randomValues() {
+                anime({
+                    targets: '.square, .circle, .triangle',
+                    translateX: function () {
+                        return anime.random(-window.innerWidth / 2, window.innerWidth / 2);
+                    },
+                    translateY: function () {
+                        return anime.random(-window.innerHeight / 2, window.innerHeight / 2);
+                    },
+                    rotate: function () {
+                        return anime.random(0, 360);
+                    },
+                    scale: function () {
+                        return anime.random(.2, 1.5);
+                    },
+                    duration: 1000,
+                    easing: 'easeInOutQuad',
+                    complete: randomValues,
+                });
+            }
+            randomValues();
+        } else {
+            // Posicionamiento inicial estático para quienes prefieren poco movimiento
+            anime.set('.square, .circle, .triangle', {
+                translateX: function () { return anime.random(-window.innerWidth / 3, window.innerWidth / 3); },
+                translateY: function () { return anime.random(-window.innerHeight / 3, window.innerHeight / 3); },
+                rotate: function () { return anime.random(0, 360); },
+                scale: function () { return anime.random(.5, 1); }
             });
         }
-        randomValues();
     }
 
     // --- INICIALIZACIÓN DE DATATABLES ---
