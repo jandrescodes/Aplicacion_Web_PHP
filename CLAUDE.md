@@ -146,6 +146,14 @@ Controller POST method:
 - Export columns per module: users `[0,1,2]`, employees `[0,1,4,5]` (name, position, date — skips photo/CV/actions), positions `[0,1]`, audit `[0,1,2,3,4,5]` (all columns).
 - Module scripts (`employees.js`, etc.) only contain AJAX delete logic and load before DataTables; the init must stay in `main.js`.
 
+**Login frontend** (`resources/views/auth/login.php`, `#tarjeta` block in `public/css/style.css`, animation in `public/js/main.js`):
+
+- **No dark theme in this project.** `public/css/style.css` has two eras in one file: the login world (`#tarjeta`, `.square/.circle/.triangle`, `--login-*` / `--shape-*` CSS variables at the top) and the Bootstrap dashboard blocks. Never re-add `@media (prefers-color-scheme: dark)` overrides — the login is light-only by design.
+- **Vertical centering:** `#tarjeta` uses `margin: auto` inside a `min-height: 100vh` flex container. Do **not** re-add Bootstrap's `mb-3` to it — its `!important` margin-bottom overrides `margin:auto` and breaks centering. `.login-body` sets `overflow-y:auto` so the card never clips in short viewports/landscape.
+- **Background animation loops continuously** (`.square`, `.circle`, `.triangle` re-chained via `complete: randomValues` in `public/js/main.js`). It is guarded by `window.matchMedia('(prefers-reduced-motion: reduce)')`; reduced-motion users get a static `anime.set(...)` scatter. Do not convert it to a single pass.
+- jQuery is loaded at the end of `<body>` (not `<head>`) in `login.php`; `main.js` runs inside `$(document).ready`.
+- Login form inputs carry `autocomplete="username"` / `"current-password"`; the decorative Bootstrap icons are `aria-hidden="true"`. Password handling stays server-side in `AuthController`/`AuthUseCase`.
+
 ## Database
 
 Tables: `tbl-puestos`, `tbl-empleados`, `tbl-usuarios` (note hyphen in table names — always quote them in SQL). `tbl-usuarios` has extra columns: `remember_token`, `remember_token_expires` (remember-me), and `is_admin TINYINT(1) NOT NULL DEFAULT 0` (role-based authorization).

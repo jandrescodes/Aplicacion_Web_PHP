@@ -19,7 +19,8 @@ Ver [README.md](README.md#instalación) para requisitos completos y la tabla de 
 1. **Corre la suite de tests**: `composer test` — debe pasar en verde. Si agregas lógica en `Domain/Models`, `Http/Requests`, `Services` o `UseCases`, agrega tests unitarios siguiendo la estrategia por capa documentada en `CLAUDE.md`.
 2. **Sigue la arquitectura existente**: Controller → Request DTO → UseCase (`OperationResult`) → Service → Repository. Usa el módulo `Employees` como referencia de patrón si vas a agregar algo nuevo.
 3. **Respeta las convenciones del proyecto**: CSRF en todo POST, SQL solo con sentencias preparadas (nunca concatenación), nombres de tabla con guión entre backticks, autenticación por `$_SESSION['is_admin']` (nunca por nombre de usuario).
-4. **Corre `composer dump-autoload`** si agregaste clases nuevas.
+4. **Si tocas el frontend de login** (`login.php`, `style.css`, `main.js`): no agregues tema oscuro (`prefers-color-scheme: dark`), mantén `#tarjeta` centrado con `margin:auto` (no re-agregues `mb-3`) y conserva la animación continua con guarda `prefers-reduced-motion`. Detalles en `CLAUDE.md` → *Login frontend*.
+5. **Corre `composer dump-autoload`** si agregaste clases nuevas.
 
 ## Convención de commits
 

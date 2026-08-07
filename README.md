@@ -104,6 +104,7 @@ La aplicación usa un framework PHP propio con Composer PSR-4 y separación estr
 - Variables de entorno cargadas con `vlucas/phpdotenv` (validación de requeridas en bootstrap)
 - Logging estructurado con Monolog — rotación diaria en `storage/logs/app.log`, 14 días de retención
 - Autenticación con `password_hash` / `password_verify` y sesiones PHP; migración automática de contraseñas en texto plano a bcrypt en el primer login
+- Login con tarjeta centrada verticalmente sin recortes, animación de fondo continua (con soporte de `prefers-reduced-motion`), paleta clara fija (sin tema oscuro) y accesibilidad (labels, `autocomplete`, iconos decorativos `aria-hidden`)
 - Autorización basada en rol (`is_admin` en DB) — `requireAdmin()` lee `$_SESSION['is_admin']`, no el nombre de usuario
 - Perfil de usuario: cambio de nombre de usuario, correo y contraseña con verificación de contraseña actual; actualiza `$_SESSION['usuario']` si cambia el nombre
 - "Recuérdame" con token rotante almacenado hasheado en DB y cookie `HttpOnly`/`SameSite=Lax`
@@ -199,6 +200,7 @@ Los logs de la aplicación se escriben en `storage/logs/app.log` con rotación d
 - Bootstrap 5 + FontAwesome 6 (CDN)
 - jQuery + DataTables 1.13 + Buttons 2.3 (exportación PDF/Excel/CSV/Print + visibilidad de columnas)
 - SweetAlert2
+- Login: jQuery cargado al final del `<body>`; animación continua en `main.js` (`.square`, `.circle`, `.triangle`) tras `prefers-reduced-motion`; sin tema oscuro — ver `CLAUDE.md` → *Login frontend*
 
 ## Base de datos
 
