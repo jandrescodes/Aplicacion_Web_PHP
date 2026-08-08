@@ -4,6 +4,7 @@
 
 # Keep log directory but ignore log files
 !storage/logs/.gitkeep
+.playwright-mcp/
 
 # System files
 /vendor/
