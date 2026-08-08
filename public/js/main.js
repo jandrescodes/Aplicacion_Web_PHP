@@ -8,9 +8,13 @@ $(document).ready(function () {
         const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
         if (!prefersReducedMotion) {
-            // Animación continua: las figuras se desplazan y se re-encadenan
+            // Animación continua: las figuras se desplazan y se re-encadenan.
+            // Se pausa mientras la pestaña está oculta para no gastar CPU/batería en segundo plano.
+            let currentAnim = null;
+            let pendingRestart = false;
+
             function randomValues() {
-                anime({
+                currentAnim = anime({
                     targets: '.square, .circle, .triangle',
                     translateX: function () {
                         return anime.random(-window.innerWidth / 2, window.innerWidth / 2);
@@ -26,10 +30,29 @@ $(document).ready(function () {
                     },
                     duration: 1000,
                     easing: 'easeInOutQuad',
-                    complete: randomValues,
+                    complete: function () {
+                        if (document.hidden) {
+                            pendingRestart = true;
+                        } else {
+                            randomValues();
+                        }
+                    },
                 });
             }
             randomValues();
+
+            document.addEventListener('visibilitychange', function () {
+                if (document.hidden) {
+                    if (currentAnim) {
+                        currentAnim.pause();
+                    }
+                } else if (pendingRestart) {
+                    pendingRestart = false;
+                    randomValues();
+                } else if (currentAnim) {
+                    currentAnim.play();
+                }
+            });
         } else {
             // Posicionamiento inicial estático para quienes prefieren poco movimiento
             anime.set('.square, .circle, .triangle', {
@@ -39,6 +62,21 @@ $(document).ready(function () {
                 scale: function () { return anime.random(.5, 1); }
             });
         }
+    }
+
+    // --- TOGGLE DE VISIBILIDAD DE CONTRASEÑA (LOGIN) ---
+    var $togglePassword = $('#togglePassword');
+    if ($togglePassword.length > 0) {
+        $togglePassword.on('click', function () {
+            var $password = $('#password');
+            var $icon = $togglePassword.find('i');
+            var isHidden = $password.attr('type') === 'password';
+
+            $password.attr('type', isHidden ? 'text' : 'password');
+            $icon.toggleClass('bi-eye-fill', !isHidden).toggleClass('bi-eye-slash-fill', isHidden);
+            $togglePassword.attr('aria-pressed', isHidden ? 'true' : 'false');
+            $togglePassword.attr('aria-label', isHidden ? 'Ocultar contraseña' : 'Mostrar contraseña');
+        });
     }
 
     // --- INICIALIZACIÓN DE DATATABLES ---

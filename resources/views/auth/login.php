@@ -41,6 +41,9 @@
             <div class="input-group">
               <span class="input-group-text"><i class="bi bi-lock-fill" aria-hidden="true"></i></span>
               <input type="password" class="form-control" name="password" id="password" placeholder="Contraseña" autocomplete="current-password" required>
+              <button type="button" class="input-group-text" id="togglePassword" aria-label="Mostrar contraseña" aria-pressed="false">
+                <i class="bi bi-eye-fill" aria-hidden="true"></i>
+              </button>
             </div>
           </div>
 

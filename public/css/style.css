@@ -49,6 +49,18 @@ main.container-login {
     color: var(--login-text-muted) !important;
 }
 
+#tarjeta .form-control,
+#tarjeta .input-group-text {
+    min-height: 44px;
+}
+
+#tarjeta button.input-group-text {
+    border: 1px solid #ced4da;
+    background-color: #e9ecef;
+    font-family: inherit;
+    cursor: pointer;
+}
+
 .square {
     position: absolute;
     top: 50%;
