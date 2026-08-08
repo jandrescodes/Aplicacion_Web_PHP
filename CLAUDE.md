@@ -151,8 +151,11 @@ Controller POST method:
 - **No dark theme in this project.** `public/css/style.css` has two eras in one file: the login world (`#tarjeta`, `.square/.circle/.triangle`, `--login-*` / `--shape-*` CSS variables at the top) and the Bootstrap dashboard blocks. Never re-add `@media (prefers-color-scheme: dark)` overrides — the login is light-only by design.
 - **Vertical centering:** `#tarjeta` uses `margin: auto` inside a `min-height: 100vh` flex container. Do **not** re-add Bootstrap's `mb-3` to it — its `!important` margin-bottom overrides `margin:auto` and breaks centering. `.login-body` sets `overflow-y:auto` so the card never clips in short viewports/landscape.
 - **Background animation loops continuously** (`.square`, `.circle`, `.triangle` re-chained via `complete: randomValues` in `public/js/main.js`). It is guarded by `window.matchMedia('(prefers-reduced-motion: reduce)')`; reduced-motion users get a static `anime.set(...)` scatter. Do not convert it to a single pass.
+- **Animation pauses on `document.hidden`:** a `visibilitychange` listener calls `currentAnim.pause()`/`.play()` on the active anime.js instance, with a `pendingRestart` flag for when the tab is hidden mid-`complete` callback. Keeps the "continuous" requirement without burning CPU/battery while the tab is backgrounded.
 - jQuery is loaded at the end of `<body>` (not `<head>`) in `login.php`; `main.js` runs inside `$(document).ready`.
 - Login form inputs carry `autocomplete="username"` / `"current-password"`; the decorative Bootstrap icons are `aria-hidden="true"`. Password handling stays server-side in `AuthController`/`AuthUseCase`.
+- **Password visibility toggle:** `#togglePassword` button inside the password `input-group` swaps `type` between `password`/`text` and the Bootstrap icon between `bi-eye-fill`/`bi-eye-slash-fill`, updating `aria-pressed` and `aria-label` (`main.js`). Purely client-side UX — no server-side password handling changes.
+- **Touch targets:** `#tarjeta .form-control` / `#tarjeta .input-group-text` set `min-height: 44px` to meet the mobile touch-target minimum.
 
 ## Database
 
