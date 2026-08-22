@@ -82,6 +82,7 @@ $(document).ready(function () {
     // --- INICIALIZACIÓN DE DATATABLES ---
     var $table = $("#tabla_id");
     if ($table.length > 0) {
+        $table.css('visibility', 'hidden');
         var module = $table.data('module');
         var moduleConfigs = {
             users: {
@@ -245,6 +246,17 @@ $(document).ready(function () {
 
         dt.buttons().container().addClass('mt-2').appendTo('#tabla_id_wrapper .col-md-6:eq(0)');
     }
+
+    // --- VALIDACIÓN DE FORMULARIOS BOOTSTRAP (needs-validation) ---
+    document.querySelectorAll('form.needs-validation').forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
 
     // --- TOOLTIPS DE BOOTSTRAP ---
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));

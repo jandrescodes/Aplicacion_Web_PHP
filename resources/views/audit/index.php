@@ -2,19 +2,19 @@
     <div class="card shadow-sm border-0">
         <div class="card-header bg-white py-3">
             <h5 class="card-title mb-0 text-primary">
-                <i class="fas fa-list me-2"></i>Registro de Auditoría
+                <i class="fas fa-list me-2" aria-hidden="true"></i>Registro de Auditoría
             </h5>
         </div>
         <div class="card-body">
-            <table class="table table-hover table-bordered" id="tabla_id" data-module="audit" style="visibility: hidden;">
+            <table class="table table-hover table-bordered" id="tabla_id" data-module="audit">
                 <thead class="bg-light text-muted small text-uppercase">
                     <tr>
-                        <th class="text-center" style="width: 80px;">#</th>
-                        <th>Usuario (ID)</th>
-                        <th>Acción</th>
-                        <th>Entidad</th>
-                        <th>ID Entidad</th>
-                        <th>Fecha</th>
+                        <th scope="col" class="text-center" style="width: 80px;">#</th>
+                        <th scope="col">Usuario (ID)</th>
+                        <th scope="col">Acción</th>
+                        <th scope="col">Entidad</th>
+                        <th scope="col">ID Entidad</th>
+                        <th scope="col">Fecha</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -40,7 +40,7 @@
                                 $a = $actionMap[$entry['action']] ?? ['bg-secondary', 'fas fa-circle', $entry['action']];
                                 ?>
                                 <span class="badge <?= $a[0]; ?>">
-                                    <i class="<?= $a[1]; ?> me-1"></i><?= $a[2]; ?>
+                                    <i class="<?= $a[1]; ?> me-1" aria-hidden="true"></i><?= $a[2]; ?>
                                 </span>
                             </td>
                             <td>
@@ -52,7 +52,7 @@
                                 ];
                                 $e = $entityMap[$entry['entity']] ?? ['fas fa-circle', $entry['entity']];
                                 ?>
-                                <i class="<?= $e[0]; ?> me-1 text-muted"></i><?= $e[1]; ?>
+                                <i class="<?= $e[0]; ?> me-1 text-muted" aria-hidden="true"></i><?= $e[1]; ?>
                             </td>
                             <td class="text-center">
                                 <?php if ($entry['entity_id'] !== null) : ?>

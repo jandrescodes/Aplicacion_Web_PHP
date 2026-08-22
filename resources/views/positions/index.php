@@ -11,7 +11,7 @@
             </div>
         </div>
         <div class="card-body">
-            <table class="table table-hover table-bordered" id="tabla_id" data-module="positions" style="visibility: hidden;">
+            <table class="table table-hover table-bordered" id="tabla_id" data-module="positions">
                 <thead class="table-light">
                     <tr>
                         <th scope="col" class="text-center" style="width: 80px;">#</th>
@@ -39,14 +39,16 @@
                                     <a class="btn btn-outline-success btn-sm"
                                         href="puestos-editar?txtID=<?= urlencode((string)$registro['ID']); ?>"
                                         data-bs-toggle="tooltip"
-                                        title="Editar Puesto">
-                                        <i class="fas fa-edit"></i>
+                                        title="Editar Puesto"
+                                        aria-label="Editar Puesto">
+                                        <i class="fas fa-edit" aria-hidden="true"></i>
                                     </a>
                                     <button type="button" class="btn btn-outline-danger btn-sm"
                                         onclick="eliminarCargo(<?= (int)$registro['ID']; ?>)"
                                         data-bs-toggle="tooltip"
-                                        title="Eliminar Puesto">
-                                        <i class="fas fa-trash-alt"></i>
+                                        title="Eliminar Puesto"
+                                        aria-label="Eliminar Puesto">
+                                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                     </button>
                                 </div>
                             </td>

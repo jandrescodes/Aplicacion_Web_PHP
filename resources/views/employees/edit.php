@@ -1,5 +1,5 @@
 <section class="mt-3 mb-5">
-    <form action="<?= htmlspecialchars($formAction, ENT_QUOTES, 'UTF-8'); ?>" method="post" enctype="multipart/form-data" class="needs-validation">
+    <form action="<?= htmlspecialchars($formAction, ENT_QUOTES, 'UTF-8'); ?>" method="post" enctype="multipart/form-data" class="needs-validation employee-form" novalidate>
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars((string)$csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
         <div class="card shadow-sm">
             <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
@@ -62,7 +62,7 @@
                                 $fotoPath = 'storage/uploads/' . $fotoPath;
                             } ?>
                             <div class="me-3 position-relative">
-                                <img width="80" height="80" src="<?= htmlspecialchars($fotoPath, ENT_QUOTES, 'UTF-8'); ?>" class="rounded-circle shadow-sm border object-fit-cover" alt="Foto Actual">
+                                <img width="80" height="80" src="<?= htmlspecialchars($fotoPath, ENT_QUOTES, 'UTF-8'); ?>" class="rounded-circle shadow-sm border object-fit-cover" alt="Foto actual de <?= htmlspecialchars(trim(preg_replace('/\s+/', ' ', $primernombre . " " . $primerapellido)), ENT_QUOTES, 'UTF-8'); ?>">
                                 <span class="position-absolute bottom-0 end-0 badge rounded-pill bg-success border border-light">
                                     <i class="fas fa-check small"></i>
                                 </span>

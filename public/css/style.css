@@ -3,11 +3,12 @@
     --login-bg: #222222;
     --login-card-bg: #ffffff;
     --login-text: #212529;
-    --login-text-muted: #6c757d;
+    --login-text-muted: #5a6268;
     --shape-square-1: #303030;
     --shape-square-2: #757575;
     --shape-circle: #1cd99d;
     --shape-triangle: #f5f5f5;
+    --login-card-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
 .login-body {
@@ -15,7 +16,6 @@
     overflow-y: auto;
     overflow-x: hidden;
     min-height: 100vh;
-    width: 100vw;
 }
 
 main.container-login {
@@ -30,9 +30,9 @@ main.container-login {
 
 #tarjeta {
     border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    box-shadow: var(--login-card-shadow);
     font-size: 18px;
-    padding: 30px;
+    padding: 1.875rem;
     width: 90%;
     max-width: 450px;
     background: var(--login-card-bg);
@@ -55,10 +55,45 @@ main.container-login {
 }
 
 #tarjeta button.input-group-text {
+    position: relative;
     border: 1px solid #ced4da;
     background-color: #e9ecef;
     font-family: inherit;
     cursor: pointer;
+}
+
+#tarjeta button.input-group-text::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+}
+
+#tarjeta .form-check {
+    position: relative;
+}
+
+#tarjeta .form-check-input {
+    position: relative;
+}
+
+#tarjeta .form-check-input::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+}
+
+.square,
+.circle,
+.triangle {
+    will-change: transform;
 }
 
 .square {
@@ -95,6 +130,15 @@ main.container-login {
     clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
     -webkit-clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
     z-index: 1;
+}
+
+.employee-form .form-control,
+.employee-form .form-select,
+.employee-form .input-group-text,
+.admin-form .form-control,
+.admin-form .form-select,
+.admin-form .input-group-text {
+    min-height: 44px;
 }
 
 /* --- ESTILOS MODERNOS DEL DASHBOARD --- */
@@ -208,4 +252,8 @@ footer {
     .module-page-header__breadcrumb {
         font-size: 0.95rem;
     }
+}
+
+.dashboard-welcome__watermark {
+    color: rgba(var(--bs-primary-rgb), 0.04);
 }

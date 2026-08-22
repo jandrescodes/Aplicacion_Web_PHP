@@ -20,11 +20,11 @@ $csrfToken = \Core\Security::getCsrfToken();
         <p class="text-muted small mb-3"><?= $correo ?: '—'; ?></p>
         <?php if ($esAdmin): ?>
           <span class="badge bg-danger px-3 py-2">
-            <i class="fas fa-shield-alt me-1"></i>Administrador
+            <i class="fas fa-shield-alt me-1" aria-hidden="true"></i>Administrador
           </span>
         <?php else: ?>
           <span class="badge bg-secondary px-3 py-2">
-            <i class="fas fa-user me-1"></i>Usuario
+            <i class="fas fa-user me-1" aria-hidden="true"></i>Usuario
           </span>
         <?php endif; ?>
       </div>
@@ -36,7 +36,7 @@ $csrfToken = \Core\Security::getCsrfToken();
 
     <!-- Formulario 1: Datos de cuenta -->
     <form action="<?= htmlspecialchars($public_base, ENT_QUOTES, 'UTF-8'); ?>perfil-datos"
-      method="POST" autocomplete="off">
+      method="POST" autocomplete="off" class="needs-validation admin-form" novalidate>
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
       <div class="card shadow-sm">
         <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
@@ -78,7 +78,7 @@ $csrfToken = \Core\Security::getCsrfToken();
 
     <!-- Formulario 2: Cambio de contraseña -->
     <form action="<?= htmlspecialchars($public_base, ENT_QUOTES, 'UTF-8'); ?>perfil-contrasena"
-      method="POST" autocomplete="off">
+      method="POST" autocomplete="off" class="needs-validation admin-form" novalidate>
       <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">
@@ -95,7 +95,7 @@ $csrfToken = \Core\Security::getCsrfToken();
                   <i class="fas fa-lock"></i>
                 </span>
                 <input type="password" class="form-control" id="currentPassword"
-                  name="currentPassword" autocomplete="current-password">
+                  name="currentPassword" autocomplete="current-password" required>
               </div>
             </div>
             <div class="col-md-4 mb-3">
@@ -105,7 +105,7 @@ $csrfToken = \Core\Security::getCsrfToken();
                   <i class="fas fa-lock-open"></i>
                 </span>
                 <input type="password" class="form-control" id="newPassword"
-                  name="newPassword" autocomplete="new-password" minlength="8">
+                  name="newPassword" autocomplete="new-password" minlength="8" required>
               </div>
               <div class="form-text">Mínimo 8 caracteres.</div>
             </div>
@@ -116,7 +116,7 @@ $csrfToken = \Core\Security::getCsrfToken();
                   <i class="fas fa-lock-open"></i>
                 </span>
                 <input type="password" class="form-control" id="confirmNewPassword"
-                  name="confirmNewPassword" autocomplete="new-password">
+                  name="confirmNewPassword" autocomplete="new-password" minlength="8" required>
               </div>
             </div>
           </div>

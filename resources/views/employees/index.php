@@ -11,7 +11,7 @@
             </div>
         </div>
         <div class="card-body">
-            <table class="table table-hover table-bordered" id="tabla_id" data-module="employees" style="visibility: hidden;">
+            <table class="table table-hover table-bordered" id="tabla_id" data-module="employees">
                 <thead class="table-light">
                     <tr>
                         <th scope="col" class="text-center" style="width: 50px;">#</th>
@@ -29,8 +29,9 @@
                     foreach ($lista_tbl_empleados as $registro) : ?>
                         <tr>
                             <td class="text-center fw-bold"><?= $counter++; ?></td>
+                            <?php $nombreCompleto = trim(preg_replace('/\s+/', ' ', $registro["Primernombre"] . " " . $registro["Segundonombre"] . " " . $registro["Primerapellido"] . " " . $registro["Segundoapellido"])); ?>
                             <td class="fw-medium">
-                                <?= htmlspecialchars($registro["Primernombre"] . " " . $registro["Segundonombre"] . " " . $registro["Primerapellido"] . " " . $registro["Segundoapellido"], ENT_QUOTES, 'UTF-8'); ?>
+                                <?= htmlspecialchars($nombreCompleto, ENT_QUOTES, 'UTF-8'); ?>
                             </td>
                             <td class="text-center">
                                 <?php if (!empty($registro["Foto"])) : ?>
@@ -38,7 +39,7 @@
                                     <?php if ($fotoPath !== '' && strpos($fotoPath, '/') === false) {
                                         $fotoPath = 'storage/uploads/' . $fotoPath;
                                     } ?>
-                                    <img width="45" src="<?= htmlspecialchars($fotoPath, ENT_QUOTES, 'UTF-8'); ?>" class="img-fluid rounded-circle shadow-sm border" alt="Foto" style="height: 45px; object-fit: cover;">
+                                    <img width="45" src="<?= htmlspecialchars($fotoPath, ENT_QUOTES, 'UTF-8'); ?>" class="img-fluid rounded-circle shadow-sm border" alt="Foto de <?= htmlspecialchars($nombreCompleto, ENT_QUOTES, 'UTF-8'); ?>" style="height: 45px; object-fit: cover;">
                                 <?php else : ?>
                                     <div class="avatar-sm mx-auto bg-light rounded-circle d-flex align-items-center justify-content-center border shadow-sm" style="width: 45px; height: 45px;">
                                         <i class="fas fa-user text-secondary"></i>
@@ -74,20 +75,23 @@
                                         href="empleados-carta-recomendacion?txtID=<?= urlencode($registro['ID']); ?>"
                                         data-bs-toggle="tooltip"
                                         title="Carta de Recomendación"
+                                        aria-label="Carta de Recomendación"
                                         target="_blank">
-                                        <i class="fas fa-file-signature"></i>
+                                        <i class="fas fa-file-signature" aria-hidden="true"></i>
                                     </a>
                                     <a class="btn btn-outline-success btn-sm"
                                         href="empleados-editar?txtID=<?= urlencode($registro['ID']); ?>"
                                         data-bs-toggle="tooltip"
-                                        title="Editar Registro">
-                                        <i class="fas fa-edit"></i>
+                                        title="Editar Registro"
+                                        aria-label="Editar Registro">
+                                        <i class="fas fa-edit" aria-hidden="true"></i>
                                     </a>
                                     <button type="button" class="btn btn-outline-danger btn-sm"
                                         onclick="eliminarEmpleado(<?= (int)$registro['ID']; ?>)"
                                         data-bs-toggle="tooltip"
-                                        title="Eliminar Registro">
-                                        <i class="fas fa-trash-alt"></i>
+                                        title="Eliminar Registro"
+                                        aria-label="Eliminar Registro">
+                                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                     </button>
                                 </div>
                             </td>

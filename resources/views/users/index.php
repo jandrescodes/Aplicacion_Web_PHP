@@ -9,13 +9,13 @@
             </a>
         </div>
         <div class="card-body">
-            <table class="table table-hover table-bordered" id="tabla_id" data-module="users" style="visibility: hidden;">
+            <table class="table table-hover table-bordered" id="tabla_id" data-module="users">
                 <thead class="bg-light text-muted small text-uppercase">
                     <tr>
-                        <th class="text-center" style="width: 80px;">#</th>
-                        <th>Usuario</th>
-                        <th>Correo</th>
-                        <th class="text-center" style="width: 150px;">Acciones</th>
+                        <th scope="col" class="text-center" style="width: 80px;">#</th>
+                        <th scope="col">Usuario</th>
+                        <th scope="col">Correo</th>
+                        <th scope="col" class="text-center" style="width: 150px;">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -45,14 +45,16 @@
                                     <a class="btn btn-outline-success btn-sm"
                                         href="usuarios-editar?txtID=<?= urlencode($registro['ID']); ?>"
                                         data-bs-toggle="tooltip"
-                                        title="Editar Usuario">
-                                        <i class="fas fa-edit"></i>
+                                        title="Editar Usuario"
+                                        aria-label="Editar Usuario">
+                                        <i class="fas fa-edit" aria-hidden="true"></i>
                                     </a>
                                     <button type="button" class="btn btn-outline-danger btn-sm"
                                         onclick="eliminarUsuario(<?= (int)$registro['ID']; ?>)"
                                         data-bs-toggle="tooltip"
-                                        title="Eliminar Usuario">
-                                        <i class="fas fa-trash-alt"></i>
+                                        title="Eliminar Usuario"
+                                        aria-label="Eliminar Usuario">
+                                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                     </button>
                                 </div>
                             </td>

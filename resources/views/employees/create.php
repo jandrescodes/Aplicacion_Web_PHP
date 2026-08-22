@@ -1,5 +1,5 @@
 <section class="mt-3 mb-5">
-    <form action="<?= htmlspecialchars($formAction, ENT_QUOTES, 'UTF-8'); ?>" method="post" enctype="multipart/form-data" class="needs-validation">
+    <form action="<?= htmlspecialchars($formAction, ENT_QUOTES, 'UTF-8'); ?>" method="post" enctype="multipart/form-data" class="needs-validation employee-form" novalidate>
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars((string)$csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
         <div class="card shadow-sm">
             <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center border-bottom">

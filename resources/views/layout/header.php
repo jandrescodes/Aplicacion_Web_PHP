@@ -15,25 +15,26 @@
   <script src="https://code.jquery.com/jquery-3.7.0.min.js" integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
 
   <!-- DataTables con Bootstrap 5 + Responsive + Buttons -->
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" />
-  <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.bootstrap5.min.css" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" integrity="sha384-ISVEfRng8Op3e05C6sGn0g+2Dx1ksAPwbTbkf3mNMmYLxY883tj0WZV+vPNjwvt6" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.4.1/css/responsive.bootstrap5.min.css" integrity="sha384-iNpi9d6S0L2XWb/Nqbmo7hVcVguZNZTLz7fVyZfoMG42jujihya8nmZ/F8Rl2Lx6" crossorigin="anonymous" />
   <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.3.6/css/buttons.bootstrap5.min.css" integrity="sha384-760jVcHKEQ7zpIFhZXFECFibxtsaQSxVvecxbyuYKJI9zvZCZdEVfpjHmL/pNq9K" crossorigin="anonymous" />
 
   <!-- Font Awesome 6 -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous" />
 
   <!-- Estilos Personalizados -->
   <link rel="stylesheet" href="<?= $public_base; ?>css/style.css">
 
-  <script src="http://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.26.25" integrity="sha384-nLoOnA/BDh8A/jxqtckg4DumuCGOBYUnNJLZdQz/zfYNp3wcjGSoWTAzgko06G/2" crossorigin="anonymous"></script>
 </head>
 
 <body>
+  <a class="visually-hidden-focusable" href="#main-content">Saltar al contenido principal</a>
   <header>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm" aria-label="Navegación principal">
       <div class="container">
         <a class="navbar-brand fw-bold" href="<?= $public_base; ?>">
-          <i class="fas fa-laptop-code me-2"></i>Sistema Web
+          <i class="fas fa-laptop-code me-2" aria-hidden="true"></i>Sistema Web
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-controls="mainNavbar" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -42,28 +43,28 @@
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
               <a class="nav-link" href="<?= $public_base; ?>">
-                <i class="fas fa-gauge-high me-1"></i> Inicio
+                <i class="fas fa-gauge-high me-1" aria-hidden="true"></i> Inicio
               </a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="<?= $public_base; ?>empleados">
-                <i class="fas fa-user-tie me-1"></i> Empleados
+                <i class="fas fa-user-tie me-1" aria-hidden="true"></i> Empleados
               </a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="<?= $public_base; ?>puestos">
-                <i class="fas fa-briefcase me-1"></i> Puestos
+                <i class="fas fa-briefcase me-1" aria-hidden="true"></i> Puestos
               </a>
             </li>
             <?php if (!empty($isAdmin)) : ?>
               <li class="nav-item">
                 <a class="nav-link" href="<?= $public_base; ?>usuarios">
-                  <i class="fas fa-users-cog me-1"></i> Usuarios
+                  <i class="fas fa-users-cog me-1" aria-hidden="true"></i> Usuarios
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="<?= $public_base; ?>auditoria">
-                  <i class="fas fa-clipboard-list me-1"></i> Auditoría
+                  <i class="fas fa-clipboard-list me-1" aria-hidden="true"></i> Auditoría
                 </a>
               </li>
             <?php endif; ?>
@@ -72,13 +73,13 @@
             <div class="dropdown">
               <a class="btn btn-outline-light btn-sm dropdown-toggle w-100" href="#" role="button"
                 data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fas fa-user-circle me-1"></i>
+                <i class="fas fa-user-circle me-1" aria-hidden="true"></i>
                 <?= htmlspecialchars($nombreUsuario, ENT_QUOTES, 'UTF-8'); ?>
               </a>
               <ul class="dropdown-menu dropdown-menu-lg-end">
                 <li>
                   <a class="dropdown-item" href="<?= htmlspecialchars($public_base, ENT_QUOTES, 'UTF-8'); ?>perfil">
-                    <i class="fas fa-id-card me-2"></i>Mi Perfil
+                    <i class="fas fa-id-card me-2" aria-hidden="true"></i>Mi Perfil
                   </a>
                 </li>
                 <li>
@@ -88,7 +89,7 @@
                   <form action="<?= htmlspecialchars($public_base, ENT_QUOTES, 'UTF-8'); ?>cerrar" method="post">
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars((string)$csrfToken, ENT_QUOTES, 'UTF-8'); ?>">
                     <button type="submit" class="dropdown-item text-danger">
-                      <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                      <i class="fas fa-sign-out-alt me-2" aria-hidden="true"></i>Cerrar Sesión
                     </button>
                   </form>
                 </li>
@@ -100,7 +101,7 @@
     </nav>
   </header>
 
-  <main class="container">
+  <main class="container" id="main-content">
     <?php if ($flash !== null) : ?>
       <div id="flash-data"
         data-icon="<?= htmlspecialchars($flash['icon']); ?>"

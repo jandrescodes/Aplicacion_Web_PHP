@@ -4,14 +4,14 @@
     <div class="p-4 mb-4 bg-white rounded-3 shadow-sm border-0 position-relative overflow-hidden mt-4">
         <div class="position-relative" style="z-index: 2;">
             <h1 class="fw-bold text-dark mb-1 fs-3">
-                <i class="fas fa-gauge-high me-2 text-primary"></i>Dashboard
+                <i class="fas fa-gauge-high me-2 text-primary" aria-hidden="true"></i>Dashboard
             </h1>
             <p class="text-muted mb-0">
                 Bienvenido, <strong><?= htmlspecialchars($nombreUsuario, ENT_QUOTES, 'UTF-8'); ?></strong>
-                &mdash; <i class="fas fa-calendar-alt me-1"></i><?= date('d/m/Y'); ?>
+                &mdash; <i class="fas fa-calendar-alt me-1" aria-hidden="true"></i><?= date('d/m/Y'); ?>
             </p>
         </div>
-        <i class="fas fa-gauge-high position-absolute" style="right:-30px;bottom:-40px;font-size:220px;color:rgba(13,110,253,0.04);transform:rotate(-10deg);"></i>
+        <i class="fas fa-gauge-high position-absolute dashboard-welcome__watermark" style="right:-30px;bottom:-40px;font-size:220px;transform:rotate(-10deg);" aria-hidden="true"></i>
     </div>
 
     <!-- Cards de totales -->
@@ -22,7 +22,7 @@
                 <div class="card-body d-flex align-items-center gap-3 p-4">
                     <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-flex align-items-center justify-content-center flex-shrink-0"
                          style="width:60px;height:60px;">
-                        <i class="fas fa-user-tie fa-xl"></i>
+                        <i class="fas fa-user-tie fa-xl" aria-hidden="true"></i>
                     </div>
                     <div>
                         <div class="fs-2 fw-bold lh-1"><?= $total_empleados; ?></div>
@@ -30,8 +30,8 @@
                     </div>
                 </div>
                 <div class="card-footer bg-transparent border-0 pt-0 pb-3 px-4">
-                    <a href="empleados" class="btn btn-outline-primary btn-sm rounded-pill px-3">
-                        <i class="fas fa-arrow-right me-1"></i> Ver módulo
+                    <a href="empleados" class="btn btn-outline-primary btn-sm rounded-pill px-3" aria-label="Ver módulo de Empleados">
+                        <i class="fas fa-arrow-right me-1" aria-hidden="true"></i> Ver módulo
                     </a>
                 </div>
             </div>
@@ -42,7 +42,7 @@
                 <div class="card-body d-flex align-items-center gap-3 p-4">
                     <div class="rounded-circle bg-info bg-opacity-10 text-info d-flex align-items-center justify-content-center flex-shrink-0"
                          style="width:60px;height:60px;">
-                        <i class="fas fa-briefcase fa-xl"></i>
+                        <i class="fas fa-briefcase fa-xl" aria-hidden="true"></i>
                     </div>
                     <div>
                         <div class="fs-2 fw-bold lh-1"><?= $total_puestos; ?></div>
@@ -50,8 +50,8 @@
                     </div>
                 </div>
                 <div class="card-footer bg-transparent border-0 pt-0 pb-3 px-4">
-                    <a href="puestos" class="btn btn-outline-info btn-sm rounded-pill px-3">
-                        <i class="fas fa-arrow-right me-1"></i> Ver módulo
+                    <a href="puestos" class="btn btn-outline-info btn-sm rounded-pill px-3" aria-label="Ver módulo de Puestos">
+                        <i class="fas fa-arrow-right me-1" aria-hidden="true"></i> Ver módulo
                     </a>
                 </div>
             </div>
@@ -63,7 +63,7 @@
                 <div class="card-body d-flex align-items-center gap-3 p-4">
                     <div class="rounded-circle bg-dark bg-opacity-10 text-dark d-flex align-items-center justify-content-center flex-shrink-0"
                          style="width:60px;height:60px;">
-                        <i class="fas fa-users-cog fa-xl"></i>
+                        <i class="fas fa-users-cog fa-xl" aria-hidden="true"></i>
                     </div>
                     <div>
                         <div class="fs-2 fw-bold lh-1"><?= $total_usuarios; ?></div>
@@ -71,8 +71,8 @@
                     </div>
                 </div>
                 <div class="card-footer bg-transparent border-0 pt-0 pb-3 px-4">
-                    <a href="usuarios" class="btn btn-outline-dark btn-sm rounded-pill px-3">
-                        <i class="fas fa-arrow-right me-1"></i> Ver módulo
+                    <a href="usuarios" class="btn btn-outline-dark btn-sm rounded-pill px-3" aria-label="Ver módulo de Usuarios">
+                        <i class="fas fa-arrow-right me-1" aria-hidden="true"></i> Ver módulo
                     </a>
                 </div>
             </div>
@@ -85,7 +85,7 @@
     <div class="card border-0 shadow-sm">
         <div class="card-header bg-white border-0 pt-4 px-4 pb-2">
             <h5 class="mb-0 fw-bold">
-                <i class="fas fa-chart-bar me-2 text-primary"></i>Empleados por puesto
+                <i class="fas fa-chart-bar me-2 text-primary" aria-hidden="true"></i>Empleados por puesto
             </h5>
         </div>
         <div class="card-body px-4 pb-4">
@@ -102,7 +102,8 @@
                                 <span class="small text-muted"><?= (int)$item['total']; ?> <?= (int)$item['total'] === 1 ? 'empleado' : 'empleados'; ?></span>
                             </div>
                             <div class="progress" style="height:10px;" role="progressbar"
-                                 aria-valuenow="<?= $pct; ?>" aria-valuemin="0" aria-valuemax="100">
+                                 aria-valuenow="<?= $pct; ?>" aria-valuemin="0" aria-valuemax="100"
+                                 aria-label="<?= htmlspecialchars($item['puesto'], ENT_QUOTES, 'UTF-8'); ?>: <?= $pct; ?>%">
                                 <div class="progress-bar bg-primary" style="width:<?= $pct; ?>%"></div>
                             </div>
                         </div>
