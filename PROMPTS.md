@@ -63,6 +63,7 @@ _______________
 - Nombres de tablas con guión siempre entre backticks: `tbl-empleados`
 - Los Controllers se resuelven automáticamente vía DI Container — no instanciar con new
 - Login (si toca el frontend de auth): NO agregar tema oscuro (`prefers-color-scheme: dark`); mantener `#tarjeta` con `margin:auto` centrado (no re-agregar `mb-3`); animación continua con guarda `prefers-reduced-motion`; jQuery al final del `<body>`
+- Accesibilidad (toda vista nueva o editada): íconos decorativos con `aria-hidden="true"`; botones/links solo-ícono con `aria-label` igual al `title` del tooltip; `<th>` de tablas listado con `scope="col"`; formularios admin/CRUD con `class="needs-validation admin-form"` (o `employee-form`) + `novalidate` — el handler de submit ya existe en `main.js`, no duplicar; cualquier `<script>`/`<link>` de CDN nuevo con `integrity`+`crossorigin="anonymous"`; `alt` de imágenes descriptivo, no genérico
 
 [Formato de salida]
 _______________
@@ -219,6 +220,7 @@ Evalúa específicamente:
 - Tablas: nombres con guión siempre entre backticks en SQL
 - Variables de vista: en snake_case, pasadas con compact() o array_merge()
 - Login frontend: sin `prefers-color-scheme: dark`; `#tarjeta` centrado con `margin:auto` sin `mb-3`; animación continua con guarda `prefers-reduced-motion`; jQuery al final del body
+- Accesibilidad: íconos decorativos `aria-hidden="true"`; íconos-botón con `aria-label`; `<th>` con `scope="col"`; SRI en scripts/links de CDN; formularios admin/CRUD con `needs-validation`+`novalidate`
 
 [Formato de salida]
 OK  - Lo que está bien (al menos 2 puntos)
@@ -307,5 +309,6 @@ Escribe los tests PHPUnit para [clase/método específico].
 3. Resultado esperado de vendor/bin/phpunit (tests, assertions, tiempo)
 ```
 
-_Última actualización: 2026-08-07 — audit de frontend de login: convenciones de `#tarjeta` (`margin:auto`, sin `mb-3`), animación continua con `prefers-reduced-motion`, paleta clara fija (sin tema oscuro) y jQuery al final del body, añadidas a la plantilla base y al checklist de code review._
+_Última actualización: 2026-08-22 — audit de accesibilidad en todas las vistas: `aria-hidden` en íconos decorativos, `aria-label` en botones/links solo-ícono, `scope="col"` en `<th>`, SRI en assets CDN, `needs-validation`+`novalidate` en formularios admin/CRUD, añadidas a la plantilla base y al checklist de code review._
+_Actualización previa: 2026-08-07 — audit de frontend de login: convenciones de `#tarjeta` (`margin:auto`, sin `mb-3`), animación continua con `prefers-reduced-motion`, paleta clara fija (sin tema oscuro) y jQuery al final del body._
 _Mantener sincronizado con CLAUDE.md al inicio de cada sesión._

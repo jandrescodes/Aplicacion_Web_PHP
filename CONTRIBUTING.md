@@ -20,7 +20,8 @@ Ver [README.md](README.md#instalación) para requisitos completos y la tabla de 
 2. **Sigue la arquitectura existente**: Controller → Request DTO → UseCase (`OperationResult`) → Service → Repository. Usa el módulo `Employees` como referencia de patrón si vas a agregar algo nuevo.
 3. **Respeta las convenciones del proyecto**: CSRF en todo POST, SQL solo con sentencias preparadas (nunca concatenación), nombres de tabla con guión entre backticks, autenticación por `$_SESSION['is_admin']` (nunca por nombre de usuario).
 4. **Si tocas el frontend de login** (`login.php`, `style.css`, `main.js`): no agregues tema oscuro (`prefers-color-scheme: dark`), mantén `#tarjeta` centrado con `margin:auto` (no re-agregues `mb-3`) y conserva la animación continua con guarda `prefers-reduced-motion`. Detalles en `CLAUDE.md` → *Login frontend*.
-5. **Corre `composer dump-autoload`** si agregaste clases nuevas.
+5. **Si agregas o editas vistas**: sigue las convenciones de accesibilidad ya aplicadas en todo el proyecto — íconos decorativos con `aria-hidden="true"`, botones/links solo-ícono con `aria-label`, `<th>` con `scope="col"`, formularios admin/CRUD con `class="needs-validation ... admin-form|employee-form" novalidate`, y cualquier `<script>`/`<link>` de CDN con `integrity`+`crossorigin`. Detalles en `CLAUDE.md` → *Frontend* → *Accessibility conventions*.
+6. **Corre `composer dump-autoload`** si agregaste clases nuevas.
 
 ## Convención de commits
 

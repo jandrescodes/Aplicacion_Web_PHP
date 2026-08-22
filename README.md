@@ -105,6 +105,7 @@ La aplicación usa un framework PHP propio con Composer PSR-4 y separación estr
 - Logging estructurado con Monolog — rotación diaria en `storage/logs/app.log`, 14 días de retención
 - Autenticación con `password_hash` / `password_verify` y sesiones PHP; migración automática de contraseñas en texto plano a bcrypt en el primer login
 - Login con tarjeta centrada verticalmente sin recortes, animación de fondo continua (con soporte de `prefers-reduced-motion`), paleta clara fija (sin tema oscuro) y accesibilidad (labels, `autocomplete`, iconos decorativos `aria-hidden`)
+- Accesibilidad aplicada en todas las vistas: skip link al contenido principal, `scope="col"` en tablas, `aria-label` en botones/links solo-ícono, formularios con validación nativa (`needs-validation`), SRI en todos los assets CDN, alt text descriptivo en imágenes
 - Autorización basada en rol (`is_admin` en DB) — `requireAdmin()` lee `$_SESSION['is_admin']`, no el nombre de usuario
 - Perfil de usuario: cambio de nombre de usuario, correo y contraseña con verificación de contraseña actual; actualiza `$_SESSION['usuario']` si cambia el nombre
 - "Recuérdame" con token rotante almacenado hasheado en DB y cookie `HttpOnly`/`SameSite=Lax`
@@ -201,6 +202,7 @@ Los logs de la aplicación se escriben en `storage/logs/app.log` con rotación d
 - jQuery + DataTables 1.13 + Buttons 2.3 (exportación PDF/Excel/CSV/Print + visibilidad de columnas)
 - SweetAlert2
 - Login: jQuery cargado al final del `<body>`; animación continua en `main.js` (`.square`, `.circle`, `.triangle`) tras `prefers-reduced-motion`; sin tema oscuro — ver `CLAUDE.md` → *Login frontend*
+- Accesibilidad: skip link, `scope="col"`, `aria-hidden`/`aria-label` en íconos y botones, SRI en CDN, validación nativa de formularios — ver `CLAUDE.md` → *Accessibility conventions*
 
 ## Base de datos
 

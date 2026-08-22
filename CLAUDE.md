@@ -156,6 +156,21 @@ Controller POST method:
 - Login form inputs carry `autocomplete="username"` / `"current-password"`; the decorative Bootstrap icons are `aria-hidden="true"`. Password handling stays server-side in `AuthController`/`AuthUseCase`.
 - **Password visibility toggle:** `#togglePassword` button inside the password `input-group` swaps `type` between `password`/`text` and the Bootstrap icon between `bi-eye-fill`/`bi-eye-slash-fill`, updating `aria-pressed` and `aria-label` (`main.js`). Purely client-side UX — no server-side password handling changes.
 - **Touch targets:** `#tarjeta .form-control` / `#tarjeta .input-group-text` set `min-height: 44px` to meet the mobile touch-target minimum.
+- **Touch target without breaking `.input-group` alignment:** `#tarjeta button.input-group-text` and `#tarjeta .form-check-input` expand their clickable area via an absolutely-positioned `::before` (`width/height: max(100%, 44px)`, centered, out of flow) instead of `min-height`/`min-width` on the visible box — see the CSS pitfall documented in `~/.claude/CLAUDE.md`.
+
+**Accessibility conventions (all views, applied via the "impeccable" audits — see memory `project_impeccable_audit_*`):**
+
+- **Decorative icons**: every purely-decorative FontAwesome/Bootstrap `<i>` icon (nav links, card headers, badges, buttons that already have visible text) gets `aria-hidden="true"`. Icon-only action buttons/links (edit, delete, tooltips) get `aria-label` on the `<a>`/`<button>` matching the tooltip `title`, with `aria-hidden="true"` on the inner icon.
+- **Table headers**: every `<th>` in a listing table's `<thead>` carries `scope="col"`.
+- **Skip link**: `layout/header.php` has `<a class="visually-hidden-focusable" href="#main-content">Saltar al contenido principal</a>` right after `<body>`, and `<main id="main-content">` is the target — don't remove either half.
+- **SRI hashes**: all CDN `<script>`/`<link>` tags (jQuery, Bootstrap, Bootstrap Icons, DataTables, FontAwesome, SweetAlert2, anime.js) carry `integrity` + `crossorigin="anonymous"`. Any new CDN asset added to `login.php` or `layout/header.php` must include SRI too; never link `http://` CDN URLs — use `https://`.
+- **Form validation**: admin/CRUD forms (`employees/create.php`, `employees/edit.php`, `positions/create.php`, `positions/edit.php`, `users/create.php`, `users/edit.php`, `profile/show.php`) use Bootstrap's `needs-validation` pattern — `class="needs-validation employee-form"` or `"needs-validation admin-form"` + `novalidate` on the `<form>`. The submit handler (`form.checkValidity()` / `was-validated`) lives once in `public/js/main.js`, not duplicated per view. `.employee-form`/`.admin-form` also apply `min-height: 44px` to `.form-control`/`.form-select`/`.input-group-text` for touch targets.
+- **Password fields**: any password `<input>` in a form that requires it gets both `required` and `minlength="8"` (matches server-side validation); optional password fields (e.g. `users/edit.php` "leave empty to keep current") get `minlength="8"` without `required`.
+- **DataTables flash-of-unstyled-table**: listing views no longer set `style="visibility: hidden;"` inline on `#tabla_id` — instead `public/js/main.js` sets `$table.css('visibility', 'hidden')` in JS right before initializing DataTables, avoiding a no-JS state where the table stays permanently hidden.
+- **Meaningful alt text**: `<img>` alt attributes describe content, not literal filenames — e.g. `employees/index.php`/`edit.php` build `alt="Foto de {full name}"` from the employee's name fields (deduplicated via `preg_replace('/\s+/', ' ', ...)`) instead of a generic `alt="Foto"`.
+- **`aria-live`**: server-rendered error alerts that appear on page load (e.g. login's `$mensaje` alert) use `aria-live="assertive"` so screen readers announce them.
+- **Heading hierarchy**: page titles use a real `<h1>` even when visually styled like an `<h2>` (e.g. login's `<h1 class="h2 mb-0">BIENVENIDO</h1>`), not a bare `<h2>`.
+- **`aria-label` on non-text-obvious controls**: dashboard "Ver módulo" links and progress bars get `aria-label` describing their target/value since surrounding text alone isn't enough context out of DOM order.
 
 ## Database
 
