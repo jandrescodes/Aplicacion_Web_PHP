@@ -183,6 +183,41 @@ main.container {
     height: 70px;
 }
 
+/* Tabla de empleados: área táctil mínima 44px en botones de acción sin agrandar la caja visible */
+.table-actions .btn-group > .btn {
+    position: relative;
+}
+
+.table-actions .btn-group > .btn::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, 44px);
+    height: max(100%, 44px);
+    transform: translate(-50%, -50%);
+}
+
+/* Anchos de columnas de la tabla de empleados (sin estilos inline) */
+#tabla_id[data-module="employees"] th.col-width-index {
+    width: 50px;
+}
+
+#tabla_id[data-module="employees"] th.table-actions-header {
+    width: 150px;
+}
+
+@media (max-width: 575.98px) {
+    .table-actions .btn-group {
+        flex-wrap: wrap;
+        gap: 0.35rem;
+    }
+
+    .table-actions .btn-group > .btn {
+        flex: 0 0 auto;
+    }
+}
+
 .table.dataTable {
     visibility: hidden;
 }

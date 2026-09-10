@@ -14,13 +14,13 @@
             <table class="table table-hover table-bordered" id="tabla_id" data-module="employees">
                 <thead class="table-light">
                     <tr>
-                        <th scope="col" class="text-center" style="width: 50px;">#</th>
+                        <th scope="col" class="text-center col-width-index">#</th>
                         <th scope="col">Nombre Completo</th>
                         <th scope="col">Foto</th>
                         <th scope="col">CV</th>
                         <th scope="col">Puesto</th>
                         <th scope="col">Fecha Ingreso</th>
-                        <th scope="col" class="text-center" style="width: 150px;">Acciones</th>
+                        <th scope="col" class="text-center table-actions-header">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -42,7 +42,7 @@
                                     <img width="45" src="<?= htmlspecialchars($fotoPath, ENT_QUOTES, 'UTF-8'); ?>" class="img-fluid rounded-circle shadow-sm border" alt="Foto de <?= htmlspecialchars($nombreCompleto, ENT_QUOTES, 'UTF-8'); ?>" style="height: 45px; object-fit: cover;">
                                 <?php else : ?>
                                     <div class="avatar-sm mx-auto bg-light rounded-circle d-flex align-items-center justify-content-center border shadow-sm" style="width: 45px; height: 45px;">
-                                        <i class="fas fa-user text-secondary"></i>
+                                        <i class="fas fa-user text-secondary" aria-hidden="true"></i>
                                     </div>
                                 <?php endif; ?>
                             </td>
@@ -52,7 +52,7 @@
                                     <?php if ($cvPath !== '' && strpos($cvPath, '/') === false) {
                                         $cvPath = 'storage/uploads/' . $cvPath;
                                     } ?>
-                                    <a href="<?= htmlspecialchars($cvPath, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" class="btn btn-outline-info btn-sm" title="Ver CV">
+                                    <a href="<?= htmlspecialchars($cvPath, ENT_QUOTES, 'UTF-8'); ?>" target="_blank" class="btn btn-outline-info btn-sm" title="Ver CV" aria-label="Ver CV de <?= htmlspecialchars($nombreCompleto, ENT_QUOTES, 'UTF-8'); ?>">
                                         <i class="fas fa-file-pdf me-1"></i> Ver CV
                                     </a>
                                 <?php else : ?>
@@ -69,13 +69,13 @@
                                     <i class="far fa-calendar-alt me-1"></i> <?= htmlspecialchars($registro["Fecha"], ENT_QUOTES, 'UTF-8'); ?>
                                 </div>
                             </td>
-                            <td class="text-center">
+                            <td class="text-center table-actions">
                                 <div class="btn-group shadow-sm" role="group">
                                     <a class="btn btn-outline-info btn-sm"
                                         href="empleados-carta-recomendacion?txtID=<?= urlencode($registro['ID']); ?>"
                                         data-bs-toggle="tooltip"
                                         title="Carta de Recomendación"
-                                        aria-label="Carta de Recomendación"
+                                        aria-label="Carta de Recomendación de <?= htmlspecialchars($nombreCompleto, ENT_QUOTES, 'UTF-8'); ?>"
                                         target="_blank">
                                         <i class="fas fa-file-signature" aria-hidden="true"></i>
                                     </a>
@@ -83,14 +83,14 @@
                                         href="empleados-editar?txtID=<?= urlencode($registro['ID']); ?>"
                                         data-bs-toggle="tooltip"
                                         title="Editar Registro"
-                                        aria-label="Editar Registro">
+                                        aria-label="Editar a <?= htmlspecialchars($nombreCompleto, ENT_QUOTES, 'UTF-8'); ?>">
                                         <i class="fas fa-edit" aria-hidden="true"></i>
                                     </a>
                                     <button type="button" class="btn btn-outline-danger btn-sm"
-                                        onclick="eliminarEmpleado(<?= (int)$registro['ID']; ?>)"
+                                        onclick="eliminarEmpleado(this, <?= (int)$registro['ID']; ?>)"
                                         data-bs-toggle="tooltip"
                                         title="Eliminar Registro"
-                                        aria-label="Eliminar Registro">
+                                        aria-label="Eliminar a <?= htmlspecialchars($nombreCompleto, ENT_QUOTES, 'UTF-8'); ?>">
                                         <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                     </button>
                                 </div>

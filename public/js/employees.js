@@ -4,9 +4,10 @@
 
 /**
  * Confirma y ejecuta la eliminación de un empleado vía AJAX
+ * @param {HTMLElement} trigger - Botón que disparó la confirmación (para restaurar foco)
  * @param {number} id - ID del empleado a eliminar
  */
-function eliminarEmpleado(id) {
+function eliminarEmpleado(trigger, id) {
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 
     Swal.fire({
@@ -18,7 +19,8 @@ function eliminarEmpleado(id) {
         cancelButtonColor: '#3085d6',
         confirmButtonText: 'Sí, elimínelo',
         cancelButtonText: 'Cancelar',
-        reverseButtons: true
+        reverseButtons: true,
+        didClose: () => trigger?.focus()
     }).then((result) => {
         if (result.isConfirmed) {
             // Mostrar cargando

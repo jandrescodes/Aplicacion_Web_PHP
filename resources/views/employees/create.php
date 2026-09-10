@@ -56,18 +56,18 @@
                         <label for="foto" class="form-label fw-bold">Foto del Empleado</label>
                         <div class="input-group shadow-sm">
                             <span class="input-group-text bg-light text-primary"><i class="fas fa-camera"></i></span>
-                            <input type="file" class="form-control" name="foto" id="foto" accept="image/*">
+                            <input type="file" class="form-control" name="foto" id="foto" accept="image/*" aria-describedby="foto-help">
                         </div>
-                        <div class="form-text small">Suba una foto clara en formato JPG o PNG.</div>
+                        <div class="form-text small" id="foto-help">Suba una foto clara en formato JPG o PNG.</div>
                     </div>
 
                     <div class="col-md-6 mb-3">
                         <label for="CV" class="form-label fw-bold">Curriculum Vitae (PDF)</label>
                         <div class="input-group shadow-sm">
                             <span class="input-group-text bg-light text-primary"><i class="fas fa-file-pdf"></i></span>
-                            <input type="file" class="form-control" name="CV" id="CV" accept=".pdf">
+                            <input type="file" class="form-control" name="CV" id="CV" accept=".pdf" aria-describedby="cv-help">
                         </div>
-                        <div class="form-text small">Adjunte el CV actualizado en formato PDF.</div>
+                        <div class="form-text small" id="cv-help">Adjunte el CV actualizado en formato PDF.</div>
                     </div>
 
                     <div class="col-md-6 mb-3">

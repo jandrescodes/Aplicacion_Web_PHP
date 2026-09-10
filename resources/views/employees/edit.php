@@ -70,9 +70,9 @@
                             <div class="flex-grow-1">
                                 <div class="input-group shadow-sm">
                                     <span class="input-group-text bg-light text-success"><i class="fas fa-camera"></i></span>
-                                    <input type="file" class="form-control" name="foto" id="foto" accept="image/*">
+                                    <input type="file" class="form-control" name="foto" id="foto" accept="image/*" aria-describedby="foto-edit-help">
                                 </div>
-                                <div class="form-text small">Deje vacío para mantener la foto actual.</div>
+                                <div class="form-text small" id="foto-edit-help">Deje vacío para mantener la foto actual.</div>
                             </div>
                         </div>
                     </div>
@@ -89,9 +89,9 @@
                             </a>
                             <div class="input-group shadow-sm">
                                 <span class="input-group-text bg-light text-success"><i class="fas fa-file-upload"></i></span>
-                                <input type="file" class="form-control" name="CV" id="CV" accept=".pdf">
+                                <input type="file" class="form-control" name="CV" id="CV" accept=".pdf" aria-describedby="cv-edit-help">
                             </div>
-                            <div class="form-text small">Deje vacío para mantener el CV actual.</div>
+                            <div class="form-text small" id="cv-edit-help">Deje vacío para mantener el CV actual.</div>
                         </div>
                     </div>
 

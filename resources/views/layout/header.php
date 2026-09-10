@@ -73,11 +73,11 @@
           </ul>
           <div class="mt-2 mt-lg-0">
             <div class="dropdown">
-              <a class="btn btn-outline-light btn-sm dropdown-toggle w-100" href="#" role="button"
-                data-bs-toggle="dropdown" aria-expanded="false">
+              <button class="btn btn-outline-light btn-sm dropdown-toggle w-100" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">
                 <i class="fas fa-user-circle me-1" aria-hidden="true"></i>
                 <?= htmlspecialchars($nombreUsuario, ENT_QUOTES, 'UTF-8'); ?>
-              </a>
+              </button>
               <ul class="dropdown-menu dropdown-menu-lg-end">
                 <li>
                   <a class="dropdown-item" href="<?= htmlspecialchars($public_base, ENT_QUOTES, 'UTF-8'); ?>perfil">
