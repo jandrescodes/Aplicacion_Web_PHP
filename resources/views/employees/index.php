@@ -104,4 +104,4 @@
 </section>
 
 <!-- Script específico para Empleados -->
-<script src="<?= $public_base; ?>js/employees.js"></script>
+<script src="<?= $public_base; ?>js/employees.js" defer></script>

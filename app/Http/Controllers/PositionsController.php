@@ -26,6 +26,7 @@ class PositionsController extends Controller
             'positions/index.php',
             array_merge(
                 compact('lista_tbl_puestos'),
+                ['needDataTables' => true],
                 $this->pageHeaderData(
                     'Gestión de Puestos',
                     'fas fa-briefcase',

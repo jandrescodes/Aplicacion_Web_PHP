@@ -29,6 +29,7 @@ class EmployeesController extends Controller
             'employees/index.php',
             array_merge(
                 compact('lista_tbl_empleados'),
+                ['needDataTables' => true],
                 $this->pageHeaderData(
                     'Gestión de Empleados',
                     'fas fa-users',

@@ -26,6 +26,7 @@ class AuditController extends Controller
             'audit/index.php',
             array_merge(
                 compact('entries'),
+                ['needDataTables' => true],
                 $this->pageHeaderData(
                     'Auditoría',
                     'fas fa-clipboard-list',

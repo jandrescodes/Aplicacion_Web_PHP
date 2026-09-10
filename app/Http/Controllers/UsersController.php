@@ -27,6 +27,7 @@ class UsersController extends Controller
             'users/index.php',
             array_merge(
                 compact('lista_tbl_usuarios'),
+                ['needDataTables' => true],
                 $this->pageHeaderData(
                     'Gestión de Usuarios',
                     'fas fa-users-cog',

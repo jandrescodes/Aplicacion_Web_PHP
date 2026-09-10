@@ -30,6 +30,7 @@ class View
             'pageHeaderTitle' => '',
             'pageHeaderIcon' => '',
             'pageBreadcrumbs' => [],
+            'needDataTables' => false,
         ], $data);
 
         $data['csrfToken'] = Security::getCsrfToken();
