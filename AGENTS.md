@@ -30,7 +30,7 @@ Apache + MySQL at `http://localhost/Aplicacion_Web_PHP/public/`.
 - **Auth**: passwords bcrypt via `password_hash()`; `AuthService::authenticate()` auto-migrates legacy plaintext—do not add migration logic
 - **Remember me**: cookie `{userId}:{plainToken}`, plain token never stored (sha256 in DB); rotation + sliding expiry are intentional—do not "fix"
 - **Login animation** in `public/js/main.js` loops continuously (`complete: randomValues`); guard with `prefers-reduced-motion`, don't convert to single-pass
-- **Accessibility conventions apply repo-wide**: decorative icons get `aria-hidden="true"`, icon-only buttons/links get `aria-label`, `<th>` gets `scope="col"`, CDN `<script>`/`<link>` tags need `integrity`+`crossorigin`, admin/CRUD forms use `needs-validation` + `novalidate` (submit handler lives once in `main.js`). See `CLAUDE.md` → *Frontend* → *Accessibility conventions*. Don't set `style="visibility: hidden;"` inline on `#tabla_id` — `main.js` does it via JS right before DataTables init
+- **Accessibility conventions apply repo-wide**: decorative icons get `aria-hidden="true"`, icon-only buttons/links get `aria-label` including the entity name (e.g. `aria-label="Editar a {name}"`), file inputs link helper text via `aria-describedby="{field}-help"`, `<th>` gets `scope="col"`, CDN `<script>`/`<link>` tags need `integrity`+`crossorigin`+`defer`, admin/CRUD forms use `needs-validation` + `novalidate` (submit handler lives once in `main.js`). See `CLAUDE.md` → *Frontend* → *Accessibility conventions*. Don't set `style="visibility: hidden;"` inline on `#tabla_id` — `main.js` does it via JS right before DataTables init
 - **Views**: `variables` like `$nombreUsuario`, `$flash` come from `extract($data)` in `Core\View::render()` — those "undefined" IDE warnings are false positives
 - PDFs: dompdf only; embed CSS via `<style><?= file_get_contents('public/css/x.css'); ?></style>` (link tags unreliable)
 - Files upload to `public/storage/uploads/`; never `deleteFileIfExists()` on `user-default.jpg` / `cv_default.pdf` (guarded in `EmployeeService`)
@@ -38,5 +38,6 @@ Apache + MySQL at `http://localhost/Aplicacion_Web_PHP/public/`.
 ## Undocumented details worth knowing
 
 - DataTables init lives in `public/js/main.js` (reads `data-module` on `#tabla`); module JS files only hold AJAX delete — don't move the init
+- DataTables assets are **conditionally loaded**: controllers pass `['needDataTables' => true]` to `renderWithLayout()` in `index()` (Employees, Positions, Users, Audit); default is `false` in `Core\View`. New listing views must opt in, and don't set the flag without a `#tabla_id`
 - `AuthUseCase` and controllers are intentionally **not unit-tested** (coupled to `$_SESSION`/`Security`)
 - Version tags: no `v` prefix (e.g. `1.12.3`)

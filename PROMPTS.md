@@ -63,7 +63,8 @@ _______________
 - Nombres de tablas con guión siempre entre backticks: `tbl-empleados`
 - Los Controllers se resuelven automáticamente vía DI Container — no instanciar con new
 - Login (si toca el frontend de auth): NO agregar tema oscuro (`prefers-color-scheme: dark`); mantener `#tarjeta` con `margin:auto` centrado (no re-agregar `mb-3`); animación continua con guarda `prefers-reduced-motion`; jQuery al final del `<body>`
-- Accesibilidad (toda vista nueva o editada): íconos decorativos con `aria-hidden="true"`; botones/links solo-ícono con `aria-label` igual al `title` del tooltip; `<th>` de tablas listado con `scope="col"`; formularios admin/CRUD con `class="needs-validation admin-form"` (o `employee-form`) + `novalidate` — el handler de submit ya existe en `main.js`, no duplicar; cualquier `<script>`/`<link>` de CDN nuevo con `integrity`+`crossorigin="anonymous"`; `alt` de imágenes descriptivo, no genérico
+- Accesibilidad (toda vista nueva o editada): íconos decorativos con `aria-hidden="true"`; botones/links solo-ícono con `aria-label` descriptivo que incluya el nombre de la entidad (`aria-label="Editar a {name}"`); inputs de archivo con `aria-describedby` enlazando su `form-text`; `<th>` de tablas listado con `scope="col"`; formularios admin/CRUD con `class="needs-validation admin-form"` (o `employee-form`) + `novalidate` — el handler de submit ya existe en `main.js`, no duplicar; cualquier `<script>`/`<link>` de CDN nuevo con `integrity`+`crossorigin="anonymous"`+`defer`; `alt` de imágenes descriptivo, no genérico
+- Tablas de listado (DataTables): pasar `'needDataTables' => true` en `renderWithLayout()` del `index()` del controller — sin el flag no se carga la librería; anchos de `<th>` en clases scoped por módulo (`#tabla_id[data-module=...]`), no `style` inline; celdas de acciones con clase `table-actions` (área táctil 44px); confirmaciones de borrado con `didClose` restaurando foco al botón disparador
 
 [Formato de salida]
 _______________
@@ -220,7 +221,8 @@ Evalúa específicamente:
 - Tablas: nombres con guión siempre entre backticks en SQL
 - Variables de vista: en snake_case, pasadas con compact() o array_merge()
 - Login frontend: sin `prefers-color-scheme: dark`; `#tarjeta` centrado con `margin:auto` sin `mb-3`; animación continua con guarda `prefers-reduced-motion`; jQuery al final del body
-- Accesibilidad: íconos decorativos `aria-hidden="true"`; íconos-botón con `aria-label`; `<th>` con `scope="col"`; SRI en scripts/links de CDN; formularios admin/CRUD con `needs-validation`+`novalidate`
+- Accesibilidad: íconos decorativos `aria-hidden="true"`; íconos-botón con `aria-label` descriptivo (incluye el nombre de la entidad); inputs de archivo con `aria-describedby`; `<th>` con `scope="col"`; SRI+crossorigin+`defer` en scripts/links de CDN; formularios admin/CRUD con `needs-validation`+`novalidate`
+- DataTables: flag `$needDataTables` solo en vistas con `#tabla_id`; sin `style` inline en `<th>`; acciones de tabla con clase `table-actions`
 
 [Formato de salida]
 OK  - Lo que está bien (al menos 2 puntos)
@@ -309,6 +311,7 @@ Escribe los tests PHPUnit para [clase/método específico].
 3. Resultado esperado de vendor/bin/phpunit (tests, assertions, tiempo)
 ```
 
-_Última actualización: 2026-08-22 — audit de accesibilidad en todas las vistas: `aria-hidden` en íconos decorativos, `aria-label` en botones/links solo-ícono, `scope="col"` en `<th>`, SRI en assets CDN, `needs-validation`+`novalidate` en formularios admin/CRUD, añadidas a la plantilla base y al checklist de code review._
+_Última actualización: 2026-09-10 — audit de frontend (módulo Empleados): DataTables solo en páginas con tabla (`$needDataTables`), todos los scripts CDN con `defer`, `aria-describedby` en inputs de archivo, `aria-label` descriptivo con nombre de entidad, confirmaciones SweetAlert con restauración de foco (`didClose`), áreas táctiles 44px en acciones de tabla, anchos de `<th>` en clases scoped por módulo, y dashboard CSS usando tokens de Bootstrap (`var(--bs-*)`). Añadidas a la plantilla base y al checklist de code review._
+_Audit previo: 2026-08-22 — `aria-hidden` en íconos decorativos, `aria-label` en botones/links solo-ícono, `scope="col"` en `<th>`, SRI en assets CDN, `needs-validation`+`novalidate` en formularios admin/CRUD, añadidas a la plantilla base y al checklist de code review._
 _Actualización previa: 2026-08-07 — audit de frontend de login: convenciones de `#tarjeta` (`margin:auto`, sin `mb-3`), animación continua con `prefers-reduced-motion`, paleta clara fija (sin tema oscuro) y jQuery al final del body._
 _Mantener sincronizado con CLAUDE.md al inicio de cada sesión._

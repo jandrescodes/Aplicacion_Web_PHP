@@ -140,11 +140,13 @@ Controller POST method:
 
 **DataTables Buttons setup:**
 
-- CDN scripts (JSZip, pdfmake, Buttons core/bootstrap5/html5/print/colvis) are loaded in `layout/footer.php` with SRI hashes.
+- CDN scripts (JSZip, pdfmake, Buttons core/bootstrap5/html5/print/colvis) are loaded in `layout/footer.php` with SRI hashes and `defer`.
+- **`$needDataTables` flag:** the whole DataTables/Buttons script block is gated by `$needDataTables` — controllers that render a listing table pass `['needDataTables' => true]` to `renderWithLayout()` in their `index()`; `Core\View` defaults it to `false`, so views without a `#tabla_id` don't ship the bundle. Don't set the flag on pages without a listing table.
 - All listing tables (`#tabla_id`) carry a `data-module` attribute (`users`, `employees`, `positions`, `audit`).
 - A single DataTable init in `public/js/main.js` reads `data-module` to apply per-module config: report titles, filenames, export column indices, and localized "sInfo" strings.
 - Export columns per module: users `[0,1,2]`, employees `[0,1,4,5]` (name, position, date — skips photo/CV/actions), positions `[0,1]`, audit `[0,1,2,3,4,5]` (all columns).
-- Module scripts (`employees.js`, etc.) only contain AJAX delete logic and load before DataTables; the init must stay in `main.js`.
+- Module scripts (`employees.js`, etc.) only hold AJAX delete logic and load with `defer` inside the view; the DataTable init must stay in `main.js`.
+- **CRUD form color convention**: create forms use primary/blue (`text-primary`, `btn-primary`, `bg-light text-primary` on `input-group-text`) and edit forms use success/green (`text-success`, `btn-success`, `bg-light text-success`). Consistent across `employees`, `users`, and `positions`. Listing `card-header` icons and the "Agregar" button in list views use primary. Don't mix the two-tone distinction within one form area.
 
 **Login frontend** (`resources/views/auth/login.php`, `#tarjeta` block in `public/css/style.css`, animation in `public/js/main.js`):
 
@@ -163,7 +165,7 @@ Controller POST method:
 - **Decorative icons**: every purely-decorative FontAwesome/Bootstrap `<i>` icon (nav links, card headers, badges, buttons that already have visible text) gets `aria-hidden="true"`. Icon-only action buttons/links (edit, delete, tooltips) get `aria-label` on the `<a>`/`<button>` matching the tooltip `title`, with `aria-hidden="true"` on the inner icon.
 - **Table headers**: every `<th>` in a listing table's `<thead>` carries `scope="col"`.
 - **Skip link**: `layout/header.php` has `<a class="visually-hidden-focusable" href="#main-content">Saltar al contenido principal</a>` right after `<body>`, and `<main id="main-content">` is the target — don't remove either half.
-- **SRI hashes**: all CDN `<script>`/`<link>` tags (jQuery, Bootstrap, Bootstrap Icons, DataTables, FontAwesome, SweetAlert2, anime.js) carry `integrity` + `crossorigin="anonymous"`. Any new CDN asset added to `login.php` or `layout/header.php` must include SRI too; never link `http://` CDN URLs — use `https://`.
+- **SRI hashes**: all CDN `<script>`/`<link>` tags (jQuery, Bootstrap, Bootstrap Icons, DataTables, FontAwesome, SweetAlert2, anime.js) carry `integrity` + `crossorigin="anonymous"`, and all load with `defer`. Any new CDN asset added to `login.php` or `layout/header.php` must include SRI too; never link `http://` CDN URLs — use `https://`.
 - **Form validation**: admin/CRUD forms (`employees/create.php`, `employees/edit.php`, `positions/create.php`, `positions/edit.php`, `users/create.php`, `users/edit.php`, `profile/show.php`) use Bootstrap's `needs-validation` pattern — `class="needs-validation employee-form"` or `"needs-validation admin-form"` + `novalidate` on the `<form>`. The submit handler (`form.checkValidity()` / `was-validated`) lives once in `public/js/main.js`, not duplicated per view. `.employee-form`/`.admin-form` also apply `min-height: 44px` to `.form-control`/`.form-select`/`.input-group-text` for touch targets.
 - **Password fields**: any password `<input>` in a form that requires it gets both `required` and `minlength="8"` (matches server-side validation); optional password fields (e.g. `users/edit.php` "leave empty to keep current") get `minlength="8"` without `required`.
 - **DataTables flash-of-unstyled-table**: listing views no longer set `style="visibility: hidden;"` inline on `#tabla_id` — instead `public/js/main.js` sets `$table.css('visibility', 'hidden')` in JS right before initializing DataTables, avoiding a no-JS state where the table stays permanently hidden.
@@ -171,6 +173,12 @@ Controller POST method:
 - **`aria-live`**: server-rendered error alerts that appear on page load (e.g. login's `$mensaje` alert) use `aria-live="assertive"` so screen readers announce them.
 - **Heading hierarchy**: page titles use a real `<h1>` even when visually styled like an `<h2>` (e.g. login's `<h1 class="h2 mb-0">BIENVENIDO</h1>`), not a bare `<h2>`.
 - **`aria-label` on non-text-obvious controls**: dashboard "Ver módulo" links and progress bars get `aria-label` describing their target/value since surrounding text alone isn't enough context out of DOM order.
+- **Form help text**: file inputs in `employees/create.php`/`edit.php` link their helper text via `aria-describedby="{foto|cv}-help"` on the input and matching `id` on the `form-text` — don't drop either half.
+- **Descriptive `aria-label`s**: icon-only action links in table rows get `aria-label="Editar a {name}"` / `"Eliminar a {name}"` / `"Ver CV de {name}"` (built from the row's own data), not a generic "Editar".
+- **Dropdown toggles are `<button>`s**: the user-menu dropdown toggle in `header.php` is `<button type="button" aria-expanded=...>`, not `<a href="#">` — anchors with `href="#"` break keyboard/screen-reader semantics.
+- **Touch targets on table actions**: the `<td>` action cells carry class `table-actions`; `public/css/style.css` expands each button's clickable area via an out-of-flow `::before` (`width/height: max(100%, 44px)`, centered) — no `min-height` on the visible box (keeps `.input-group.btn-group` alignment) — and wraps the group on mobile (`flex-wrap`) instead of shrinking buttons.
+- **No inline `<th>` widths**: listing-table column widths go in scoped classes targeted by module, e.g. `#tabla_id[data-module="employees"] th.col-width-index` / `th.table-actions-header` — not `style="width:..."`. Keeps DataTables-specific widths out of the markup and easier to override.
+- **CSS tokens**: dashboard-era rules in `style.css` use Bootstrap CSS custom properties (`var(--bs-primary)`, `var(--bs-body-color)`, `var(--bs-gray-100)`, `var(--bs-border-color)`, `var(--bs-box-shadow)`, `var(--bs-secondary-bg)`…) instead of hard-coded hex. The only literal hex left is the `--login-*` / `--shape-*` token definitions for the login world. New dashboard CSS must use the tokens.
 
 ## Database
 

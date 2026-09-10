@@ -199,10 +199,11 @@ Los logs de la aplicación se escriben en `storage/logs/app.log` con rotación d
 ## Frontend
 
 - Bootstrap 5 + FontAwesome 6 (CDN)
-- jQuery + DataTables 1.13 + Buttons 2.3 (exportación PDF/Excel/CSV/Print + visibilidad de columnas)
-- SweetAlert2
+- jQuery + DataTables 1.13 + Buttons 2.3 (exportación PDF/Excel/CSV/Print + visibilidad de columnas) — cargado **solo** en páginas con tabla de listado (flag `$needDataTables`, default `false` en `Core\View`); todos los scripts CDN con `integrity`+`crossorigin`+`defer`
+- SweetAlert2 (`defer`); confirmaciones de borrado con `didClose` que restaura el foco al botón disparador
 - Login: jQuery cargado al final del `<body>`; animación continua en `main.js` (`.square`, `.circle`, `.triangle`) tras `prefers-reduced-motion`; sin tema oscuro — ver `CLAUDE.md` → *Login frontend*
-- Accesibilidad: skip link, `scope="col"`, `aria-hidden`/`aria-label` en íconos y botones, SRI en CDN, validación nativa de formularios — ver `CLAUDE.md` → *Accessibility conventions*
+- Accesibilidad: skip link, `scope="col"`, `aria-hidden`/`aria-label` descriptivo (incluye el nombre de la entidad) en íconos y botones, `aria-describedby` en inputs de archivo, SRI en CDN, validación nativa de formularios, áreas táctiles de 44px en acciones de tabla — ver `CLAUDE.md` → *Accessibility conventions*
+- CSS del dashboard usa tokens de Bootstrap (`var(--bs-*)`), no colores hard-coded (excepto los tokens `--login-*`/`--shape-*` del login)
 
 ## Base de datos
 
