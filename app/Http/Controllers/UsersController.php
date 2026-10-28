@@ -183,7 +183,10 @@ class UsersController extends Controller
         if ($txtID > 0) {
             $deleted = $this->userUseCase->deleteUser($txtID, $_SESSION['user_id'] ?? null);
             $success = $deleted;
-            $message = $deleted ? 'Usuario eliminado exitosamente.' : 'No se pudo eliminar el usuario.';
+            $isSelf  = $txtID === (int)($_SESSION['user_id'] ?? 0);
+            $message = $deleted
+                ? 'Usuario eliminado exitosamente.'
+                : ($isSelf ? 'No puede eliminar su propia cuenta.' : 'No se pudo eliminar el usuario.');
         } else {
             $success = false;
             $message = 'El ID del usuario no es válido.';

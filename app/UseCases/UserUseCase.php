@@ -66,6 +66,11 @@ class UserUseCase
 
     public function deleteUser(int $id, ?int $actorId = null): bool
     {
+        // Evita que el único admin se elimine a sí mismo y deje el sistema sin administración.
+        if ($actorId !== null && $actorId === $id) {
+            return false;
+        }
+
         $deleted = $this->userService->deleteUser($id);
         if ($deleted) {
             $this->dispatcher->dispatch(new UserDeleted($actorId, $id));
