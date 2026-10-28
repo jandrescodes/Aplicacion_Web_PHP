@@ -1,0 +1,8 @@
+# Los archivos subidos nunca se ejecutan como código.
+php_flag engine off
+RemoveHandler .php .phtml .php3 .php4 .phar
+RemoveType .php .phtml .php3 .php4 .phar
+Options -ExecCGI
+<FilesMatch "\.(php\d?|phtml|phar)(\.|$)">
+    Require all denied
+</FilesMatch>

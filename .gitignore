@@ -15,6 +15,7 @@ bash.exe.stackdump
 public/storage/uploads/*
 !public/storage/uploads/cv_default.pdf
 !public/storage/uploads/user-default.jpg
+!public/storage/uploads/.htaccess
 config/app.php
 .claude
 

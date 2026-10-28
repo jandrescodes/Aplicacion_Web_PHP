@@ -56,8 +56,9 @@ class EmployeeFileStorage
             return '';
         }
 
-        $safeName = basename($originalName);
-        $uniqueName = uniqid('', true) . '_' . $safeName;
+        // El nombre original no se conserva: un "x.php.jpg" ejecutaría como PHP con AddType de Apache.
+        $extension = strtolower((string)pathinfo($originalName, PATHINFO_EXTENSION));
+        $uniqueName = bin2hex(random_bytes(16)) . ($extension !== '' ? '.' . $extension : '');
         $targetPath = $targetDirectory . '/' . $uniqueName;
 
         if (!move_uploaded_file($uploadedFile['tmp_name'], $targetPath)) {
@@ -80,14 +81,19 @@ class EmployeeFileStorage
         }
 
         $normalizedPath = $this->normalizeStoredPath($fileName);
-        if ($normalizedPath === '') {
+        if ($normalizedPath === '' || in_array('..', explode('/', $normalizedPath), true)) {
             return;
         }
 
         $candidates = $this->buildDeleteCandidates($targetDirectory, $normalizedPath);
         foreach ($candidates as $candidate) {
-            if (is_file($candidate)) {
-                unlink($candidate);
+            $resolved = realpath($candidate);
+            if ($resolved === false || strpos($resolved, $targetDirectory . DIRECTORY_SEPARATOR) !== 0) {
+                continue;
+            }
+
+            if (is_file($resolved)) {
+                unlink($resolved);
                 return;
             }
         }
