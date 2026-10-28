@@ -4,24 +4,35 @@ namespace App\UseCases;
 
 use App\Http\Requests\Auth\LoginRequest;
 use App\Services\AuthService;
+use App\Services\LoginThrottleService;
 use App\UseCases\DTOs\OperationResult;
 use Core\Security;
 
 class AuthUseCase
 {
     private AuthService $authService;
+    private LoginThrottleService $throttle;
 
-    public function __construct(AuthService $authService)
+    public function __construct(AuthService $authService, LoginThrottleService $throttle)
     {
         $this->authService = $authService;
+        $this->throttle    = $throttle;
     }
 
     public function handleLogin(LoginRequest $request): OperationResult
     {
+        $ip = (string)($_SERVER['REMOTE_ADDR'] ?? '');
+        if ($this->throttle->isLocked($request->usuario, $ip)) {
+            return OperationResult::fail('Demasiados intentos fallidos. Intente nuevamente en unos minutos.');
+        }
+
         $user = $this->authService->authenticate($request->usuario, $request->password);
         if ($user === null) {
+            $this->throttle->recordFailure($request->usuario, $ip);
             return OperationResult::fail('El usuario o la contraseña son incorrectos');
         }
+
+        $this->throttle->reset($request->usuario);
 
         Security::startSession();
         session_regenerate_id(true);

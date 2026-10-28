@@ -46,3 +46,13 @@ CREATE TABLE IF NOT EXISTS `audit_log` (
   KEY `idx_audit_created` (`created_at`),
   KEY `idx_audit_entity` (`entity`, `entity_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `login_attempts` (
+  `id`           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `username`     VARCHAR(255) NOT NULL,
+  `ip`           VARCHAR(45) NOT NULL,
+  `attempted_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_login_username` (`username`, `attempted_at`),
+  KEY `idx_login_ip` (`ip`, `attempted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
