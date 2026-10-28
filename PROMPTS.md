@@ -52,7 +52,9 @@ _______________
   (EmployeesController / EmployeeUseCase / EmployeeService / EmployeeRepository)
 - Renderizado: $this->renderWithLayout('vista.php', array_merge($data, $this->pageHeaderData(...)))
 - CSRF obligatorio en todo POST: $this->hasValidCsrfToken($_POST)
-- Acceso protegido: $this->requireLogin() al inicio de cada método
+- Acceso protegido: $this->requireLogin() al inicio de cada método; puestos, usuarios y auditoría además $this->requireAdmin() en todos los métodos (empleados y perfil solo login)
+- Subidas: nombre guardado aleatorio + extensión validada (nunca el nombre del cliente); el borrado de archivos solo dentro de `public/storage/uploads/`
+- Cambio de contraseña o edición de contraseña por admin: revocar el remember token (`clearRememberToken`)
 - Request DTOs: XxxRequest::fromArray($_POST) + ->validate() antes de llamar al UseCase
 - Los UseCases reciben Request DTOs tipados y devuelven OperationResult
 - Flash messages: Flash::set('mensaje') para éxito, Flash::set('mensaje', 'error') para error

@@ -96,6 +96,8 @@ Controller POST method:
 - **Cookie format**: `{userId}:{plainToken}` — the plain token is never stored; only its `sha256` hash goes into the DB column `remember_token` on `tbl-usuarios`
 - **Rotation**: every successful cookie-based login issues a new token and overwrites the old one (token rotation); each cookie-authenticated visit resets the 30-day expiration (sliding session — intentional)
 - **Logout**: `AuthUseCase::handleLogout()` revokes the DB token and expires the cookie; `AuthController` calls this via `$this->authUseCase->handleLogout()`
+- **Revocation on password change**: `UserService::changePassword()` and `UserService::updateUser()` (when a new password is set) call `UserRepository::clearRememberToken()` after a successful update, so a cookie stolen before the change stops working. Sessions already open are not invalidated (they are never revalidated against the DB)
+- **Admin flag on cookie login**: `UserRepository::findByIdWithRememberToken()` selects `is_admin`, so `AuthUseCase::handleRememberLogin()` restores the role from the DB
 - `Security::setRememberCookie()` / `clearRememberCookie()` / `getRememberCookie()` in `core/Security.php` manage the raw cookie with `HttpOnly`, `SameSite=Lax`, and `Secure` (auto-detected from `$_SERVER['HTTPS']`)
 - Schema columns added to `tbl-usuarios`: `remember_token VARCHAR(64) NULL`, `remember_token_expires DATETIME NULL`
 
@@ -105,7 +107,11 @@ Controller POST method:
 - `UserService` always calls `password_hash()` on create and update
 - The seeder (`database/seeders.sql`) stores bcrypt hashes; comments above the INSERT lines show the plain-text values for local dev reference
 
-**Security headers:** `Security::sendSecurityHeaders()` sends `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, and a `Permissions-Policy` restricting geolocation/microphone/camera.
+**Login throttle:** `AuthUseCase::handleLogin()` asks `LoginThrottleService::isLocked()` before verifying credentials; a failure is recorded with `recordFailure()` and a success clears that username (`reset()`). Limits: 5 failures per typed username (trim + lowercase, 255 chars) and 20 per `$_SERVER['REMOTE_ADDR']` within 900 s, stored in `login_attempts` (`LoginAttemptRepository`, bound to `LoginAttemptRepositoryInterface` in `config/container.php`). Every recorded failure purges rows older than the window. `X-Forwarded-For` is deliberately not trusted. Trade-off: anyone can lock a known username for the window; behind a TLS-terminating proxy all clients share one IP bucket.
+
+**Security headers:** `Security::sendSecurityHeaders()` sends `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, a `Permissions-Policy` restricting geolocation/microphone/camera, a partial `Content-Security-Policy` (`base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'`, no `script-src` because views use inline `onclick`) and `Strict-Transport-Security` only when `$_SERVER['HTTPS']` is set. `Security::startSession()` applies `SESSION_LIFETIME` (minutes) as `session.gc_maxlifetime`; there is no idle or absolute timeout check.
+
+**Web exposure / `.htaccess`:** the project root sits inside the Apache docroot (`/Aplicacion_Web_PHP/`), so three `.htaccess` files are security controls: the root one (`Require all denied`, keeps `.env`, `vendor/`, `database/`, `storage/logs/` unreachable), `public/.htaccess` (`Require all granted` + rewrite to `index.php`) and `public/storage/uploads/.htaccess` (`php_flag engine off`, `RemoveHandler/RemoveType`, `FilesMatch` deny for php/phtml/phar; `.gitignore` re-includes it with `!public/storage/uploads/.htaccess`). They need `AllowOverride` enabled; if the app is deployed elsewhere, put the rules in the vhost or move the app root outside the docroot.
 
 **Deployment note:** `Secure` cookie/session flags are derived from `$_SERVER['HTTPS']`. If ever deployed behind a reverse proxy that terminates TLS (nginx, load balancer) without forwarding that variable, cookies would silently lose the `Secure` flag — not an issue on the current direct XAMPP deployment.
 
@@ -134,6 +140,7 @@ Controller POST method:
 ## Frontend
 
 - Bootstrap 5 + FontAwesome 6 (CDN)
+- Flash toasts (`public/js/notifications.js`) pass the message to SweetAlert2 as `titleText` (plain text), never `title` (HTML)
 - DataTables 1.13 + Buttons 2.3 for listings — includes PDF, Excel, CSV, Print, and column visibility buttons
 - SweetAlert2 for confirmations and toast notifications
 - AJAX deletion pattern: JS in `public/js/{employees,positions,users}.js` calls POST endpoints and removes the table row on success without reloading
@@ -184,7 +191,9 @@ Controller POST method:
 
 Tables: `tbl-puestos`, `tbl-empleados`, `tbl-usuarios` (note hyphen in table names — always quote them in SQL). `tbl-usuarios` has extra columns: `remember_token`, `remember_token_expires` (remember-me), and `is_admin TINYINT(1) NOT NULL DEFAULT 0` (role-based authorization).
 
-**Admin authorization:** `Controller::requireAdmin()` checks `$_SESSION['is_admin']`, which is set from `$user->isAdmin` on login (`AuthUseCase`). Do not use username string comparison for access control. `Controller::renderWithLayout()` always passes `isAdmin` (bool) to every view via the layout data — the navbar uses `!empty($isAdmin)` to show the Users menu, never the username string.
+**Admin authorization:** all six `PositionsController` routes (list, create, edit, delete) call `requireAdmin()` after `requireLogin()`, like `UsersController` and `AuditController`; the navbar and the dashboard hide the Puestos link from non-admins. `UserUseCase::deleteUser()` refuses to delete the acting admin. `Controller::requireAdmin()` checks `$_SESSION['is_admin']`, which is set from `$user->isAdmin` on login (`AuthUseCase`). Do not use username string comparison for access control. `Controller::renderWithLayout()` always passes `isAdmin` (bool) to every view via the layout data — the navbar uses `!empty($isAdmin)` to show the Users menu, never the username string.
+
+`login_attempts` (`id`, `username`, `ip`, `attempted_at`, indexes on `(username, attempted_at)` and `(ip, attempted_at)`) backs the login throttle; it is not an entity of the audit log.
 
 **No migration runner:** schema changes require two steps — update `database/schema.sql` AND apply directly:
 
@@ -192,7 +201,7 @@ Tables: `tbl-puestos`, `tbl-empleados`, `tbl-usuarios` (note hyphen in table nam
 mysql -u root -proot -h 127.0.0.1 app -e "ALTER TABLE ..."
 ```
 
-File uploads land in `public/storage/uploads/`. Default assets (`user-default.jpg`, `cv_default.pdf`) live there too. Never pass these to `deleteFileIfExists()` — `EmployeeService` guards against this with an explicit `$defaultFiles` check.
+File uploads land in `public/storage/uploads/` under a random name (`bin2hex(random_bytes(16))` + the lowercased, allowlisted extension; the client's filename is never kept). `EmployeeFileStorage::deleteFileIfExists()` ignores values containing `..` and only unlinks files whose `realpath` is inside the uploads directory. Default assets (`user-default.jpg`, `cv_default.pdf`) live there too. Never pass these to `deleteFileIfExists()` — `EmployeeService` guards against this with an explicit `$defaultFiles` check.
 
 ## User profile
 
@@ -210,7 +219,7 @@ File uploads land in `public/storage/uploads/`. Default assets (`user-default.jp
 - **No Request DTO, no OperationResult** — read-only, no user input.
 - **No Service** — `DashboardUseCase::getMetrics()` calls the three existing repo interfaces directly; no new bindings in `config/container.php`.
 - **Metrics**: `countAll()` on `EmployeeRepository`, `PositionRepository`, `UserRepository`; `countByPosition()` (LEFT JOIN) on `EmployeeRepository`.
-- **Access control**: `total_usuarios` is computed but only passed to the view when `$_SESSION['is_admin']` is truthy — non-admins never receive the value.
+- **Access control**: the "Ver módulo" link of the Puestos card is rendered only for admins. `total_usuarios` is computed but only passed to the view when `$_SESSION['is_admin']` is truthy — non-admins never receive the value.
 - **Aliases**: `GET /dashboard`, `/index`, `/home` all redirect to `/` via `HomeController::alias()`.
 - **No `module_header`**: the dashboard view uses its own welcome jumbotron as visual header — `pageHeaderData()` is not called.
 
@@ -242,4 +251,4 @@ Cross-cutting events decouple UseCases from `AuditService`. Pattern: UseCase →
 
 ## Logs
 
-App logs are written to `storage/logs/app.log`. The directory is tracked in git via `.gitkeep`; log files are gitignored. Do not delete the `storage/logs/` directory.
+App logs are written to `storage/logs/app.log` (daily files); they hold full exception traces, so they must stay unreachable from the web (root `.htaccess`). A DB connection failure is thrown from `Config\Database` and logged by the catch in `public/index.php`; the client only sees the generic 500 page. The directory is tracked in git via `.gitkeep`; log files are gitignored. Do not delete the `storage/logs/` directory.

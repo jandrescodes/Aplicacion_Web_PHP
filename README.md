@@ -108,7 +108,10 @@ La aplicación usa un framework PHP propio con Composer PSR-4 y separación estr
 - Accesibilidad aplicada en todas las vistas: skip link al contenido principal, `scope="col"` en tablas, `aria-label` en botones/links solo-ícono, formularios con validación nativa (`needs-validation`), SRI en todos los assets CDN, alt text descriptivo en imágenes
 - Autorización basada en rol (`is_admin` en DB) — `requireAdmin()` lee `$_SESSION['is_admin']`, no el nombre de usuario
 - Perfil de usuario: cambio de nombre de usuario, correo y contraseña con verificación de contraseña actual; actualiza `$_SESSION['usuario']` si cambia el nombre
-- "Recuérdame" con token rotante almacenado hasheado en DB y cookie `HttpOnly`/`SameSite=Lax`
+- "Recuérdame" con token rotante almacenado hasheado en DB y cookie `HttpOnly`/`SameSite=Lax`; el token se revoca al cambiar la contraseña (propia o por un admin) y al cerrar sesión
+- Límite de intentos de login: 5 fallos por usuario o 20 por IP en 15 minutos (`login_attempts`)
+- Cabeceras de seguridad (`X-Frame-Options`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`, CSP parcial y HSTS bajo HTTPS) y `.htaccess` que bloquea `.env`, `vendor/`, `database/` y logs, y desactiva PHP en `public/storage/uploads/`
+- Puestos, usuarios y auditoría son solo para administradores; un admin no puede eliminar su propia cuenta
 - Protección CSRF en formularios y peticiones AJAX (meta tag + header)
 - Eliminación asíncrona con AJAX + SweetAlert2 sin recargar la página
 - Notificaciones Flash integradas con SweetAlert2 con mensajes específicos por módulo y acción
@@ -174,18 +177,18 @@ Apuntar el servidor web a `public/` o acceder vía `http://localhost/Aplicacion_
 
 Definidas en `.env` (ver `.env.example`):
 
-| Variable               | Requerida | Descripción                                                  |
-| ---------------------- | :-------: | ------------------------------------------------------------ |
-| `APP_ENV`              |     ✔     | `local` o `production` — controla el nivel mínimo de logging |
-| `APP_URL`              |     ✔     | URL base de la aplicación (validada en el bootstrap)         |
-| `SESSION_LIFETIME`     |           | Duración de la sesión PHP en minutos                         |
-| `REMEMBER_ME_ENABLED`  |           | Habilita/deshabilita la cookie "Recuérdame" (`true`/`false`) |
-| `REMEMBER_ME_LIFETIME` |           | Duración del token "Recuérdame" en días                      |
-| `DB_HOST`              |     ✔     | Host de MySQL/MariaDB                                        |
-| `DB_PORT`              |     ✔     | Puerto de la base de datos                                   |
-| `DB_DATABASE`          |     ✔     | Nombre de la base de datos                                   |
-| `DB_USERNAME`          |     ✔     | Usuario de la base de datos                                  |
-| `DB_PASSWORD`          |           | Contraseña de la base de datos                               |
+| Variable               | Requerida | Descripción                                                      |
+| ---------------------- | :-------: | ---------------------------------------------------------------- |
+| `APP_ENV`              |     ✔     | `local` o `production` — controla el nivel mínimo de logging     |
+| `APP_URL`              |     ✔     | URL base de la aplicación (validada en el bootstrap)             |
+| `SESSION_LIFETIME`     |           | Minutos de `session.gc_maxlifetime` (sin chequeo de inactividad) |
+| `REMEMBER_ME_ENABLED`  |           | Habilita/deshabilita la cookie "Recuérdame" (`true`/`false`)     |
+| `REMEMBER_ME_LIFETIME` |           | Duración del token "Recuérdame" en días                          |
+| `DB_HOST`              |     ✔     | Host de MySQL/MariaDB                                            |
+| `DB_PORT`              |     ✔     | Puerto de la base de datos                                       |
+| `DB_DATABASE`          |     ✔     | Nombre de la base de datos                                       |
+| `DB_USERNAME`          |     ✔     | Usuario de la base de datos                                      |
+| `DB_PASSWORD`          |           | Contraseña de la base de datos                                   |
 
 Las variables marcadas como requeridas son validadas por `vlucas/phpdotenv` en el arranque — la aplicación no inicia si faltan.
 
@@ -196,22 +199,29 @@ Los logs de la aplicación se escriben en `storage/logs/app.log` con rotación d
 - En `APP_ENV=local` se registran desde nivel `Debug`; en producción solo `Warning` en adelante.
 - Los errores fatales y excepciones no atrapadas se registran automáticamente desde el bootstrap.
 
+## Despliegue y seguridad
+
+- El proyecto completo vive dentro del docroot de Apache: el `.htaccess` de la raíz (`Require all denied`) y el de `public/` (`Require all granted`) son controles de seguridad y requieren `AllowOverride` habilitado. En otro servidor, replicar las reglas en el vhost o sacar la app del docroot.
+- No importar `database/seeders.sql` en producción: crea un admin con contraseña conocida.
+- Los logs en `storage/logs/` contienen trazas completas; nunca deben ser accesibles desde la web.
+
 ## Frontend
 
 - Bootstrap 5 + FontAwesome 6 (CDN)
 - jQuery + DataTables 1.13 + Buttons 2.3 (exportación PDF/Excel/CSV/Print + visibilidad de columnas) — cargado **solo** en páginas con tabla de listado (flag `$needDataTables`, default `false` en `Core\View`); todos los scripts CDN con `integrity`+`crossorigin`+`defer`
 - SweetAlert2 (`defer`); confirmaciones de borrado con `didClose` que restaura el foco al botón disparador
-- Login: jQuery cargado al final del `<body>`; animación continua en `main.js` (`.square`, `.circle`, `.triangle`) tras `prefers-reduced-motion`; sin tema oscuro — ver `CLAUDE.md` → *Login frontend*
-- Accesibilidad: skip link, `scope="col"`, `aria-hidden`/`aria-label` descriptivo (incluye el nombre de la entidad) en íconos y botones, `aria-describedby` en inputs de archivo, SRI en CDN, validación nativa de formularios, áreas táctiles de 44px en acciones de tabla — ver `CLAUDE.md` → *Accessibility conventions*
+- Login: jQuery cargado al final del `<body>`; animación continua en `main.js` (`.square`, `.circle`, `.triangle`) tras `prefers-reduced-motion`; sin tema oscuro — ver `CLAUDE.md` → _Login frontend_
+- Accesibilidad: skip link, `scope="col"`, `aria-hidden`/`aria-label` descriptivo (incluye el nombre de la entidad) en íconos y botones, `aria-describedby` en inputs de archivo, SRI en CDN, validación nativa de formularios, áreas táctiles de 44px en acciones de tabla — ver `CLAUDE.md` → _Accessibility conventions_
 - CSS del dashboard usa tokens de Bootstrap (`var(--bs-*)`), no colores hard-coded (excepto los tokens `--login-*`/`--shape-*` del login)
 
 ## Base de datos
 
-Tablas: `tbl-empleados`, `tbl-puestos`, `tbl-usuarios` (los guiones requieren comillas en SQL), `audit_log`.  
+Tablas: `tbl-empleados`, `tbl-puestos`, `tbl-usuarios` (los guiones requieren comillas en SQL), `audit_log`, `login_attempts`.  
 `tbl-usuarios` incluye `remember_token` y `remember_token_expires` para "Recuérdame", e `is_admin TINYINT(1)` para control de acceso por rol.  
 `audit_log` es append-only (`id`, `user_id` NULL, `action` ENUM, `entity` ENUM, `entity_id` NULL, `created_at`); `user_id` sin FK para sobrevivir borrados de usuario.  
 La columna `Correo` tiene restricción `UNIQUE` — la unicidad se valida explícitamente en `UserService` antes del INSERT/UPDATE para dar mensajes de error claros.  
-Archivos subidos en `public/storage/uploads/`. Los assets por defecto (`user-default.jpg`, `cv_default.pdf`) están protegidos contra borrado accidental.
+`login_attempts` (`username`, `ip`, `attempted_at`) alimenta el límite de intentos de login; en una BD existente hay que crearla con el `CREATE TABLE` de `database/schema.sql`.  
+Archivos subidos en `public/storage/uploads/` con nombre aleatorio (se conserva solo la extensión validada); ahí `.htaccess` impide ejecutar PHP. Los assets por defecto (`user-default.jpg`, `cv_default.pdf`) están protegidos contra borrado accidental.
 
 ## Cómo contribuir
 
