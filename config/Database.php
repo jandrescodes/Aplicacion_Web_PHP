@@ -26,7 +26,8 @@ class Database
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
             ]);
         } catch (PDOException $e) {
-            die("Error de conexión a la base de datos: " . $e->getMessage());
+            // El mensaje de PDO incluye host y usuario: se registra en el log vía el catch de public/index.php, no se muestra.
+            throw new \RuntimeException('Error de conexión a la base de datos', 0, $e);
         }
 
         return self::$connection;

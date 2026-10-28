@@ -16,6 +16,11 @@ class Security
         ini_set('session.cookie_secure', $isHttps ? '1' : '0');
         ini_set('session.cookie_samesite', 'Lax');
 
+        $lifetimeMinutes = (int)($_ENV['SESSION_LIFETIME'] ?? 0);
+        if ($lifetimeMinutes > 0) {
+            ini_set('session.gc_maxlifetime', (string)($lifetimeMinutes * 60));
+        }
+
         if (PHP_VERSION_ID >= 70300) {
             session_set_cookie_params([
                 'httponly' => true,
@@ -59,6 +64,12 @@ class Security
         header('X-Content-Type-Options: nosniff');
         header('Referrer-Policy: strict-origin-when-cross-origin');
         header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
+        // Sin script-src: las vistas usan onclick inline, así que solo se restringe lo que no las rompe.
+        header("Content-Security-Policy: base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'");
+
+        if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+            header('Strict-Transport-Security: max-age=31536000');
+        }
     }
 
     public static function setRememberCookie(string $value): void

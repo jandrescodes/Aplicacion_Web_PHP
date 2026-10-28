@@ -1,7 +1,7 @@
 <?php
 $usuario   = htmlspecialchars((string)($Nombreusuario ?? ''), ENT_QUOTES, 'UTF-8');
 $correo    = htmlspecialchars((string)($Correo ?? ''), ENT_QUOTES, 'UTF-8');
-$inicial   = strtoupper(mb_substr((string)($Nombreusuario ?? '?'), 0, 1));
+$inicial   = htmlspecialchars(strtoupper(mb_substr((string)($Nombreusuario ?? '?'), 0, 1)), ENT_QUOTES, 'UTF-8');
 $esAdmin   = !empty($isAdmin);
 $csrfToken = \Core\Security::getCsrfToken();
 ?>

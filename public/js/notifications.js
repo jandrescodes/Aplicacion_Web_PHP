@@ -17,7 +17,7 @@ const showToast = (icon, message) => {
 
     Toast.fire({
         icon: icon,
-        title: message
+        titleText: message
     });
 };
 
