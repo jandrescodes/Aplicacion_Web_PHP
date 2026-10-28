@@ -53,12 +53,12 @@
                 <i class="fas fa-user-tie me-1" aria-hidden="true"></i> Empleados
               </a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="<?= $public_base; ?>puestos">
-                <i class="fas fa-briefcase me-1" aria-hidden="true"></i> Puestos
-              </a>
-            </li>
             <?php if (!empty($isAdmin)) : ?>
+              <li class="nav-item">
+                <a class="nav-link" href="<?= $public_base; ?>puestos">
+                  <i class="fas fa-briefcase me-1" aria-hidden="true"></i> Puestos
+                </a>
+              </li>
               <li class="nav-item">
                 <a class="nav-link" href="<?= $public_base; ?>usuarios">
                   <i class="fas fa-users-cog me-1" aria-hidden="true"></i> Usuarios

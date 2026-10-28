@@ -49,11 +49,13 @@
                         <div class="text-muted small mt-1">Puestos</div>
                     </div>
                 </div>
+                <?php if (!empty($isAdmin)) : ?>
                 <div class="card-footer bg-transparent border-0 pt-0 pb-3 px-4">
                     <a href="puestos" class="btn btn-outline-info btn-sm rounded-pill px-3" aria-label="Ver módulo de Puestos">
                         <i class="fas fa-arrow-right me-1" aria-hidden="true"></i> Ver módulo
                     </a>
                 </div>
+                <?php endif; ?>
             </div>
         </div>
 

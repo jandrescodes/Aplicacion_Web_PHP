@@ -21,6 +21,7 @@ class PositionsController extends Controller
     public function index(): void
     {
         $this->requireLogin();
+        $this->requireAdmin();
         $lista_tbl_puestos = $this->positionUseCase->listPositions();
         $this->renderWithLayout(
             'positions/index.php',
@@ -39,6 +40,7 @@ class PositionsController extends Controller
     public function createForm(): void
     {
         $this->requireLogin();
+        $this->requireAdmin();
         $formAction = 'puestos-crear';
         $mensaje = '';
         $this->renderWithLayout(
@@ -57,6 +59,7 @@ class PositionsController extends Controller
     public function create(): void
     {
         $this->requireLogin();
+        $this->requireAdmin();
         if (!$this->hasValidCsrfToken($_POST)) {
             Flash::set('Solicitud inválida, recargue la página e intente nuevamente.', 'error');
             $this->redirect('puestos-crear');
@@ -93,6 +96,7 @@ class PositionsController extends Controller
     public function editForm(): void
     {
         $this->requireLogin();
+        $this->requireAdmin();
         $txtID  = (int)($_GET['txtID'] ?? 0);
         $puesto = $this->positionUseCase->getPosition($txtID);
         if ($puesto === null) {
@@ -119,6 +123,7 @@ class PositionsController extends Controller
     public function edit(): void
     {
         $this->requireLogin();
+        $this->requireAdmin();
         if (!$this->hasValidCsrfToken($_POST)) {
             Flash::set('Solicitud inválida, recargue la página e intente nuevamente.', 'error');
             $this->redirect('puestos');
@@ -157,6 +162,7 @@ class PositionsController extends Controller
     public function delete(): void
     {
         $this->requireLogin();
+        $this->requireAdmin();
         $isAjax = $this->isAjaxRequest();
 
         if (!$this->hasValidCsrfToken($_POST)) {
