@@ -1,0 +1,2 @@
+# Solo public/ es accesible; .env, vendor, database, storage/logs, etc. quedan bloqueados.
+Require all denied
