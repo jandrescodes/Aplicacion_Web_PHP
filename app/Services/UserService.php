@@ -103,6 +103,11 @@ class UserService
                 'Password' => $passwordToPersist,
                 'Correo' => trim((string)($data['correo'] ?? ''))
             ]);
+
+            // La cookie "recordarme" emitida con la contraseña anterior no debe seguir abriendo sesiones.
+            if ($updated && $rawPassword !== '') {
+                $this->userRepository->clearRememberToken($userId);
+            }
         } catch (PDOException $exception) {
             return ['success' => false, 'message' => 'No se pudo actualizar el usuario.'];
         }
@@ -185,6 +190,10 @@ class UserService
 
         try {
             $updated = $this->userRepository->updatePasswordHash($userId, $hash);
+
+            if ($updated) {
+                $this->userRepository->clearRememberToken($userId);
+            }
         } catch (PDOException $exception) {
             return ['success' => false, 'message' => 'No se pudo cambiar la contraseña.'];
         }

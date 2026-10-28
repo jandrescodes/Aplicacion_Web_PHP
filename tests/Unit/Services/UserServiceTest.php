@@ -538,4 +538,38 @@ class UserServiceTest extends TestCase
 
         $this->assertFalse($result['success']);
     }
+
+    public function test_changePassword_revokes_remember_token_after_update(): void
+    {
+        $this->repo->method('updatePasswordHash')->willReturn(true);
+        $this->repo->expects($this->once())->method('clearRememberToken')->with(2);
+
+        $this->service->changePassword(2, 'nueva12345');
+    }
+
+    public function test_changePassword_keeps_remember_token_when_update_fails(): void
+    {
+        $this->repo->method('updatePasswordHash')->willReturn(false);
+        $this->repo->expects($this->never())->method('clearRememberToken');
+
+        $this->service->changePassword(2, 'nueva12345');
+    }
+
+    public function test_update_revokes_remember_token_when_password_is_set(): void
+    {
+        $this->repo->method('findById')->willReturn($this->makeUser());
+        $this->repo->method('update')->willReturn(true);
+        $this->repo->expects($this->once())->method('clearRememberToken')->with(2);
+
+        $this->service->updateUser(2, array_merge($this->validUpdateData(), ['password' => 'nuevaclave123']));
+    }
+
+    public function test_update_keeps_remember_token_when_password_is_empty(): void
+    {
+        $this->repo->method('findById')->willReturn($this->makeUser());
+        $this->repo->method('update')->willReturn(true);
+        $this->repo->expects($this->never())->method('clearRememberToken');
+
+        $this->service->updateUser(2, $this->validUpdateData());
+    }
 }

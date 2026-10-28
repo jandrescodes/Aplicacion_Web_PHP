@@ -115,7 +115,7 @@ class UserRepository implements UserRepositoryInterface
     public function findByIdWithRememberToken(int $id): ?User
     {
         $statement = $this->connection->prepare(
-            "SELECT ID, Nombreusuario, remember_token, remember_token_expires
+            "SELECT ID, Nombreusuario, is_admin, remember_token, remember_token_expires
              FROM `tbl-usuarios`
              WHERE ID = :ID
              LIMIT 1"
